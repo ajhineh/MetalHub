@@ -199,26 +199,48 @@ Configure the environment variables in a `.env` file at the root or within works
 
 ## 6. Local Development via Docker Compose
 
-To spin up the entire ecosystem (Next.js, Strapi 5, PostgreSQL, Redis) locally without manually installing database systems, run:
-
+To spin up the entire ecosystem (Next.js, Strapi 5, PostgreSQL, Redis) locally for development:
 ```bash
 docker compose up -d
 ```
-
-This starts the following containerized stack:
-* **`web`**: `http://localhost:3000` (Next.js dev frontend)
-* **`cms`**: `http://localhost:1337` (Strapi CMS backend)
-* **`db`**: PostgreSQL container (persisting CMS schema)
-* **`redis`**: Redis queue container (orchestrating BullMQ jobs)
-
-To stop the containers:
+To stop the development containers:
 ```bash
 docker compose down
 ```
 
 ---
 
-## 7. Pre-Deployment SEO & Content Audit Integration
+## 7. Production AWS EC2 ARM64 (Graviton) Deployment
+
+For deploying to restricted memory nodes (such as `t4g.small` instances with 2GB RAM and ARM64 processors), execute the following steps on the host:
+
+### Step 1: Configure Host Swap Space
+Next.js and Strapi builds require virtual memory overhead during compilation. To prevent host Out-of-Memory (OOM) kills, initialize a 4GB Swap file using our automated script:
+```bash
+# Set up execute permissions and run the script
+chmod +x apps/web/scripts/setup-swap.sh
+./apps/web/scripts/setup-swap.sh
+```
+
+### Step 2: Spin up the Production Stack
+To run the production-optimized, container-resource-limited ARM64 containers (capped at 600MB RAM each for node processes), run:
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+This boots optimized, multi-stage native ARM64 Alpine environments:
+* **`metalhub-prod-web`**: Next.js production server (`http://localhost:3000`)
+* **`metalhub-prod-cms`**: Strapi production server (`http://localhost:1337`)
+* **`metalhub-prod-db`**: PostgreSQL (capped at 400MB memory limit)
+* **`metalhub-prod-redis`**: Redis BullMQ broker (capped at 200MB memory limit)
+
+To stop the production containers:
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+---
+
+## 8. Pre-Deployment SEO & Content Audit Integration
 
 We utilize the developer auditing tool [Claude-seo](https://github.com/AgriciDaniel/Claude-seo) to verify our B2B optimization parameters before final deployments. 
 

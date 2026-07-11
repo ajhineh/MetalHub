@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Container (Strictly Capped)
+  db:
+    image: postgres:15-alpine
+    container_name: metalhub-prod-db
+    restart: always
+    environment:
+      POSTGRES_USER: metalhub_admin
+      POSTGRES_PASSWORD: secure_postgres_password_123
+      POSTGRES_DB: metalhub_production
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+    networks:
+      - metalhub-net
+
+  # 2. Redis Message Broker Container (Strictly Capped)
+  redis:
+    image: redis:7-alpine
+    container_name: metalhub-prod-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata_prod:/data
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - metalhub-net
+
+  # 3. Strapi Headless CMS Container (ARM64 Native Alpine, Capped)
+  cms:
+    image: node:18-alpine
+    container_name: metalhub-prod-cms
+    restart: always
+    working_dir: /opt/app
+    volumes:
+      - ./apps/cms:/opt/app
+    ports:
+      - "1337:1337"
+    environment:
+      NODE_ENV: production
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: metalhub_production
+      DATABASE_USERNAME: metalhub_admin
+      DATABASE_PASSWORD: secure_postgres_password_123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - db
+      - redis
+    command: sh -c "npm ci --omit=dev && npm run build && npm run start"
+    deploy:
+      resources:
+        limits:
+          memory: 600M
+    networks:
+      - metalhub-net
+
+  # 4. Next.js App Router Frontend Container (ARM64 Native Alpine, Capped)
+  web:
+    image: node:20-alpine
+    container_name: metalhub-prod-web
+    restart: always
+    working_dir: /opt/app
+    volumes:
+      - ./apps/web:/opt/app
+      - /opt/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_CMS_URL: http://cms:1337
+      STRAPI_API_URL: http://cms:1337
+      AWS_REGION: eu-west-1
+      AWS_S3_BUCKET: metalhub-drawings
+      CRM_WEBHOOK_URL: https://api.hubapi.com/webhooks/v1/mock-deal-ingest
+      REVALIDATION_SECRET: SECURE_REVALIDATION_TOKEN
+    depends_on:
+      - cms
+    command: sh -c "npm ci --omit=dev && npm run build && npm run start"
+    deploy:
+      resources:
+        limits:
+          memory: 600M
+    networks:
+      - metalhub-net
+
+volumes:
+  pgdata_prod:
+  redisdata_prod:
+
+networks:
+  metalhub-net:
+    driver: bridge
