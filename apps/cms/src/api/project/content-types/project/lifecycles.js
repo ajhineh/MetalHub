@@ -17,6 +17,12 @@ module.exports = {
         id: result.id,
         title: result.title,
         data: result
+      }, {
+        attempts: 5,
+        backoff: {
+          type: 'exponential',
+          delay: 1000
+        }
       }).then(() => {
         console.log(`[Strapi Queue] Added translation job for project ID: ${result.id}`);
       }).catch(err => {
@@ -32,6 +38,12 @@ module.exports = {
         id: result.id,
         title: result.title,
         data: result
+      }, {
+        attempts: 5,
+        backoff: {
+          type: 'exponential',
+          delay: 1000
+        }
       }).then(() => {
         console.log(`[Strapi Queue] Queued updated translation job for project ID: ${result.id}`);
       }).catch(err => {

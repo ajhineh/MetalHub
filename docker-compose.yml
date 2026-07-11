@@ -14,6 +14,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - metalhub-net
 
   # 2. Redis Message Broker Container
   redis:
@@ -24,6 +26,8 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    networks:
+      - metalhub-net
 
   # 3. Strapi Headless CMS Container
   cms:
@@ -49,6 +53,8 @@ services:
       - db
       - redis
     command: sh -c "npm install && npm run develop"
+    networks:
+      - metalhub-net
 
   # 4. Next.js App Router Frontend Container
   web:
@@ -72,7 +78,13 @@ services:
     depends_on:
       - cms
     command: sh -c "npm install && npm run dev"
+    networks:
+      - metalhub-net
 
 volumes:
   pgdata:
   redisdata:
+
+networks:
+  metalhub-net:
+    driver: bridge

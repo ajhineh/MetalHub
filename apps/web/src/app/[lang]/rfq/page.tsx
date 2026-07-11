@@ -131,6 +131,44 @@ export default function RfqPage({ params }: PageProps) {
     setSelectedFile(file);
   };
 
+  const verifyFileHeadersClient = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (!reader.result) {
+          resolve(false);
+          return;
+        }
+        const bytes = new Uint8Array(reader.result as ArrayBuffer);
+        const hex = Array.from(bytes.slice(0, 15)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        const ascii = Array.from(bytes.slice(0, 15)).map(b => (b >= 32 && b <= 126 ? String.fromCharCode(b) : '.')).join('');
+        
+        const fileExt = file.name.toLowerCase().split('.').pop() || '';
+        let isValid = false;
+
+        if (fileExt === 'pdf') {
+          if (hex.startsWith('25 50 44 46')) {
+            isValid = true;
+          }
+        } else if (fileExt === 'dwg') {
+          if (hex.startsWith('41 43 31 30') || hex.startsWith('4d 43 30 2e')) {
+            isValid = true;
+          }
+        } else if (fileExt === 'step' || fileExt === 'stp') {
+          if (hex.startsWith('49 53 4f 2d') || ascii.includes('ISO-10303')) {
+            isValid = true;
+          }
+        } else if (fileExt === 'dxf') {
+          if (ascii.startsWith('0') || ascii.startsWith('  0') || ascii.includes('SECTION')) {
+            isValid = true;
+          }
+        }
+        resolve(isValid);
+      };
+      reader.readAsArrayBuffer(file.slice(0, 100));
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
@@ -139,30 +177,37 @@ export default function RfqPage({ params }: PageProps) {
     setStatusMessage(t.processing);
 
     try {
-      // 1. Request AWS S3 Presigned URL & validate header signatures
-      const preUploadData = new FormData();
-      preUploadData.append('filename', selectedFile.name);
-      preUploadData.append('fileSize', String(selectedFile.size));
-      preUploadData.append('mimeType', selectedFile.type || 'application/octet-stream');
-      
-      const headerChunk = selectedFile.slice(0, 100);
-      preUploadData.append('headerChunk', headerChunk);
+      // 1. Client-Side Magic Number validation (removes Next.js server-side streaming memory footprint)
+      const isBinaryValid = await verifyFileHeadersClient(selectedFile);
+      if (!isBinaryValid) {
+        setFileError(isFr 
+          ? 'Rejet de sécurité : Échec de validation de la signature binaire du fichier.' 
+          : 'Security Rejection: File binary header verification failed. Suspicious file content detected.');
+        setSubmitting(false);
+        return;
+      }
 
-      const res = await fetch('/api/rfq', {
+      // 2. Fetch Presigned PUT URL from /api/rfq/presigned
+      const res = await fetch('/api/rfq/presigned', {
         method: 'POST',
-        body: preUploadData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: selectedFile.name,
+          fileSize: selectedFile.size,
+          mimeType: selectedFile.type || 'application/octet-stream'
+        })
       });
 
       if (!res.ok) {
         const err = await res.json();
-        setFileError(err.message || 'Validation failed.');
+        setFileError(err.message || 'Presigned URL generation failed.');
         setSubmitting(false);
         return;
       }
 
       const { uploadUrl, fileKey } = await res.json();
 
-      // 2. Direct upload from browser to S3
+      // 3. Direct upload from browser to S3
       setStatusMessage(t.uploadingS3);
       try {
         const s3UploadRes = await fetch(uploadUrl, {
@@ -182,7 +227,7 @@ export default function RfqPage({ params }: PageProps) {
         console.warn('[S3 Upload] Offline or mock S3 URL detected. Bypassing fetch error for local development testing.', err.message);
       }
 
-      // 3. Complete submission to trigger CRM Webhook
+      // 4. Complete submission to trigger CRM Webhook
       setStatusMessage(isFr ? 'Création de l\'opportunité dans le CRM...' : 'Registering B2B opportunity in CRM...');
       const completeRes = await fetch('/api/rfq', {
         method: 'PUT',

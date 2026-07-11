@@ -75,10 +75,7 @@ async function callLLMTranslation(data, targetLocale) {
       messages: [
         {
           role: 'system',
-          content: `You are an expert metallurgy copywriter and B2B industrial contracting engineer. 
-          Translate the given technical parameters into a professional B2B marketing description in ${targetLocale} language.
-          Use precise local metalwork and steel construction terms (such as steel grades, EXC classes, ISO standards).
-          Format response in clean structured markdown.`
+          content: `You are an expert industrial B2B copywriter specialized in steel structures and metal fabrication for the European market. Translate the following technical specification from English to ${targetLocale} (native level). Maintain absolute technical accuracy, use a professional engineering tone, optimize for local B2B SEO, and highlight benefits for industrial contractors.`
         },
         {
           role: 'user',
@@ -96,5 +93,10 @@ async function callLLMTranslation(data, targetLocale) {
 
   return response.data.choices[0].message.content;
 }
+
+// Global failed event listener to handle job errors and logging cleanly
+worker.on('failed', (job, err) => {
+  console.error(`[BullMQ Worker Error] Job ${job ? job.id : 'unknown'} failed with exception:`, err.message);
+});
 
 module.exports = worker;
