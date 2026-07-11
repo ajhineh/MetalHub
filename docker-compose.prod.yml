@@ -57,10 +57,14 @@ services:
       DATABASE_PASSWORD: secure_postgres_password_123
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      NEXT_FRONTEND_URL: ${NEXT_FRONTEND_URL}
     depends_on:
       - db
       - redis
-    command: sh -c "npm ci --omit=dev && npm run build && npm run start"
+    command: sh -c "npm install --omit=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
@@ -81,15 +85,22 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_CMS_URL: http://cms:1337
-      STRAPI_API_URL: http://cms:1337
-      AWS_REGION: eu-west-1
-      AWS_S3_BUCKET: metalhub-drawings
-      CRM_WEBHOOK_URL: https://api.hubapi.com/webhooks/v1/mock-deal-ingest
-      REVALIDATION_SECRET: SECURE_REVALIDATION_TOKEN
+      NEXT_PUBLIC_CMS_URL: ${NEXT_PUBLIC_CMS_URL}
+      STRAPI_API_URL: ${STRAPI_API_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-eu-west-1}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-metalhub-drawings}
+      CRM_WEBHOOK_URL: ${CRM_WEBHOOK_URL:-https://api.hubapi.com/webhooks/v1/mock-deal-ingest}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET:-SECURE_REVALIDATION_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      TRELLO_API_KEY: ${TRELLO_API_KEY}
+      TRELLO_TOKEN: ${TRELLO_TOKEN}
+      TRELLO_LIST_ID: ${TRELLO_LIST_ID}
     depends_on:
       - cms
-    command: sh -c "npm ci --omit=dev && npm run build && npm run start"
+    command: sh -c "npm install --omit=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
