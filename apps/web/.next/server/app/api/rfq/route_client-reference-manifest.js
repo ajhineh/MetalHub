@@ -1,1 +1,0 @@
-globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/rfq/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"D:\\AI-Project\\Business\\apps\\web\\src\\app\\api\\rfq\\route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};
