@@ -39,7 +39,7 @@ services:
 
   # 3. Strapi Headless CMS Container (ARM64 Native Alpine, Capped)
   cms:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: metalhub-prod-cms
     restart: always
     working_dir: /opt/app
