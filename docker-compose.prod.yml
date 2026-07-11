@@ -61,14 +61,17 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       NEXT_FRONTEND_URL: ${NEXT_FRONTEND_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      APP_KEYS: ${APP_KEYS}
+      NODE_OPTIONS: --max-old-space-size=1536
     depends_on:
       - db
       - redis
-    command: sh -c "npm install --include=dev --legacy-peer-deps && npm run build && npm run start"
+    command: sh -c "mkdir -p public/uploads && npm install --include=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
-          memory: 1200M
+          memory: 1800M
     networks:
       - metalhub-net
 
@@ -98,13 +101,14 @@ services:
       TRELLO_API_KEY: ${TRELLO_API_KEY}
       TRELLO_TOKEN: ${TRELLO_TOKEN}
       TRELLO_LIST_ID: ${TRELLO_LIST_ID}
+      NODE_OPTIONS: --max-old-space-size=1536
     depends_on:
       - cms
     command: sh -c "npm install --include=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
-          memory: 1000M
+          memory: 1500M
     networks:
       - metalhub-net
 
