@@ -64,11 +64,11 @@ services:
     depends_on:
       - db
       - redis
-    command: sh -c "npm install --omit=dev --legacy-peer-deps && npm run build && npm run start"
+    command: sh -c "npm install --include=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
-          memory: 600M
+          memory: 1200M
     networks:
       - metalhub-net
 
@@ -100,11 +100,11 @@ services:
       TRELLO_LIST_ID: ${TRELLO_LIST_ID}
     depends_on:
       - cms
-    command: sh -c "npm install --omit=dev --legacy-peer-deps && npm run build && npm run start"
+    command: sh -c "npm install --include=dev --legacy-peer-deps && npm run build && npm run start"
     deploy:
       resources:
         limits:
-          memory: 600M
+          memory: 1000M
     networks:
       - metalhub-net
 
