@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "call_logs",
+  "info": {
+    "singularName": "call-log",
+    "pluralName": "call-logs",
+    "displayName": "Call Log Archive",
+    "description": "VoIP Telephony Call History, transcripts, and metallurgy spec auto-extractions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "callSid": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "phoneNumber": {
+      "type": "string",
+      "required": true
+    },
+    "durationSeconds": {
+      "type": "integer",
+      "default": 0
+    },
+    "transcript": {
+      "type": "text"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "steelGradeRequested": {
+      "type": "string"
+    },
+    "executionClassRequested": {
+      "type": "string"
+    },
+    "crmStatus": {
+      "type": "enumeration",
+      "enum": [
+        "queued",
+        "processed",
+        "synced_to_crm",
+        "failed"
+      ],
+      "default": "queued"
+    }
+  }
+}

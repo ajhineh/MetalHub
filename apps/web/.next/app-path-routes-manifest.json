@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/_global-error/page": "/_global-error",
+  "/api/health/route": "/api/health",
+  "/api/revalidate/route": "/api/revalidate",
+  "/api/rfq/route": "/api/rfq",
+  "/api/voip/inbound/route": "/api/voip/inbound",
+  "/api/voip/menu-selection/route": "/api/voip/menu-selection",
+  "/api/voip/stream/route": "/api/voip/stream",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/[lang]/page": "/[lang]",
+  "/[lang]/projects/page": "/[lang]/projects",
+  "/[lang]/rfq/page": "/[lang]/rfq",
+  "/[lang]/services/page": "/[lang]/services"
+}

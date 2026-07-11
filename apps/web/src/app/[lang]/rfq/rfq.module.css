@@ -1,0 +1,92 @@
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.stepIndicator::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 2rem;
+  right: 2rem;
+  height: 2px;
+  background-color: var(--color-steel-border);
+  z-index: 1;
+}
+
+.indicatorItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  position: relative;
+  cursor: default;
+}
+
+.indicatorNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-steel-medium);
+  border: 2px solid var(--color-steel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: var(--transition-fast);
+}
+
+.indicatorActive .indicatorNumber {
+  background-color: var(--color-cad-blue);
+  border-color: var(--color-cad-blue);
+  color: #ffffff;
+  box-shadow: 0 0 10px var(--color-cad-blue-glow);
+}
+
+.indicatorLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+.indicatorActive .indicatorLabel {
+  color: #ffffff;
+}
+
+.uploadBox {
+  border: 2px dashed var(--color-steel-border);
+  border-radius: 6px;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  background-color: rgba(11, 14, 20, 0.4);
+  transition: var(--transition-normal);
+}
+
+.uploadBox:hover {
+  border-color: var(--color-cad-blue);
+  background-color: rgba(59, 130, 246, 0.02);
+}
+
+.uploadBoxActive {
+  border-color: var(--color-cad-blue) !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.formActions {
+  display: flex;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--color-steel-border);
+  padding-top: 1.5rem;
+}

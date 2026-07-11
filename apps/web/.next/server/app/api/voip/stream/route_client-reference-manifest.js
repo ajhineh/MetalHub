@@ -1,0 +1,1 @@
+globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/voip/stream/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"D:\\AI-Project\\Business\\apps\\web\\src\\app\\api\\voip\\stream\\route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};

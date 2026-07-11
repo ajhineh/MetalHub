@@ -1,0 +1,124 @@
+/* [project]/apps/web/src/components/Header/Header.module.css [app-client] (css) */
+.Header-module__sj-PPG__header {
+  z-index: 100;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-steel-border);
+  transition: var(--transition-normal);
+  background: #0b0e14d9;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+}
+
+.Header-module__sj-PPG__headerContainer {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.Header-module__sj-PPG__logoContainer {
+  align-items: center;
+  gap: .75rem;
+  display: flex;
+}
+
+.Header-module__sj-PPG__logoIcon {
+  border: 1.5px solid var(--color-cad-blue);
+  width: 40px;
+  height: 40px;
+  color: var(--color-cad-blue);
+  transition: var(--transition-fast);
+  background: #3b82f61a;
+  border-radius: 6px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.Header-module__sj-PPG__logoContainer:hover .Header-module__sj-PPG__logoIcon {
+  border-color: var(--color-amber);
+  color: var(--color-amber);
+  background: #f59e0b1a;
+  transform: rotate(45deg);
+}
+
+.Header-module__sj-PPG__logoText {
+  font-family: var(--font-space-grotesk), sans-serif;
+  letter-spacing: -.03em;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.Header-module__sj-PPG__logoHighlight {
+  color: var(--color-cad-blue);
+}
+
+.Header-module__sj-PPG__logoContainer:hover .Header-module__sj-PPG__logoHighlight {
+  color: var(--color-amber);
+}
+
+.Header-module__sj-PPG__logoSubtext {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: .15rem;
+  font-size: .7rem;
+  display: block;
+}
+
+.Header-module__sj-PPG__nav {
+  align-items: center;
+  gap: 2rem;
+  display: flex;
+}
+
+.Header-module__sj-PPG__nav a {
+  font-family: var(--font-space-grotesk), sans-serif;
+  color: var(--text-muted);
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.Header-module__sj-PPG__nav a:hover, .Header-module__sj-PPG__activeLink {
+  color: #fff !important;
+}
+
+.Header-module__sj-PPG__rfqBtn {
+  padding: .6rem 1.2rem !important;
+  font-size: .85rem !important;
+}
+
+.Header-module__sj-PPG__langSelect {
+  border: 1px solid var(--color-steel-border);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-space-grotesk), sans-serif;
+  transition: var(--transition-fast);
+  background: #0b0e14;
+  border-radius: 4px;
+  outline: none;
+  padding: .4rem .6rem;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.Header-module__sj-PPG__langSelect option {
+  color: #fff;
+  background-color: #151922;
+}
+
+.Header-module__sj-PPG__langSelect:hover, .Header-module__sj-PPG__langSelect:focus {
+  border-color: var(--color-cad-blue);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .Header-module__sj-PPG__nav {
+    display: none;
+  }
+}
+
+/*# sourceMappingURL=apps_web_src_components_Header_Header_module_css_1igg3k2._.single.css.map*/

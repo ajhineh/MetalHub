@@ -1,0 +1,120 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11, 14, 20, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-steel-border);
+  padding: 1rem 0;
+  transition: var(--transition-normal);
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1.5px solid var(--color-cad-blue);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-cad-blue);
+  transition: var(--transition-fast);
+}
+
+.logoContainer:hover .logoIcon {
+  transform: rotate(45deg);
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--color-amber);
+  color: var(--color-amber);
+}
+
+.logoText {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.logoHighlight {
+  color: var(--color-cad-blue);
+}
+
+.logoContainer:hover .logoHighlight {
+  color: var(--color-amber);
+}
+
+.logoSubtext {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav a {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nav a:hover, .activeLink {
+  color: #ffffff !important;
+}
+
+.rfqBtn {
+  padding: 0.6rem 1.2rem !important;
+  font-size: 0.85rem !important;
+}
+
+.langSelect {
+  background: #0b0e14;
+  border: 1px solid var(--color-steel-border);
+  color: #ffffff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.langSelect option {
+  background-color: #151922;
+  color: #ffffff;
+}
+
+.langSelect:hover, .langSelect:focus {
+  border-color: var(--color-cad-blue);
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    display: none; /* In a real layout we'd do a mobile toggle, but let's keep it simple for now */
+  }
+}

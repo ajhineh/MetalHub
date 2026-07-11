@@ -1,0 +1,51 @@
+{
+  "collectionName": "components_metallurgy_specs",
+  "info": {
+    "displayName": "Metallurgy Specification",
+    "icon": "cog",
+    "description": "Dynamic metallurgical specs for B2B Product and Case Studies SEO mappings"
+  },
+  "options": {},
+  "attributes": {
+    "steelGrade": {
+      "type": "enumeration",
+      "enum": [
+        "S235JR",
+        "S275JR",
+        "S355JR",
+        "S355J2+N",
+        "S355K2+N",
+        "304L Stainless",
+        "316L Stainless (Inox)"
+      ],
+      "required": true,
+      "default": "S355J2+N"
+    },
+    "executionClass": {
+      "type": "enumeration",
+      "enum": [
+        "EXC1",
+        "EXC2",
+        "EXC3",
+        "EXC4"
+      ],
+      "required": true,
+      "default": "EXC2"
+    },
+    "weldingStandard": {
+      "type": "string",
+      "required": true,
+      "default": "EN 1090-2"
+    },
+    "surfaceTreatment": {
+      "type": "string",
+      "required": true,
+      "default": "Hot-dip Galvanized"
+    },
+    "workshopLocation": {
+      "type": "string",
+      "required": true,
+      "default": "France Workshops Network"
+    }
+  }
+}

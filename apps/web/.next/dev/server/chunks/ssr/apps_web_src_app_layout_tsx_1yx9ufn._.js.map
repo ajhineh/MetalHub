@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/AI-Project/Business/apps/web/src/app/layout.tsx"],"sourcesContent":["export default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return children;\n}\n"],"names":["RootLayout","children"],"mappings":";;;;AAAe,SAASA,WAAW,EACjCC,QAAQ,EAGR;IACA,OAAOA;AACT"}}]
+}
