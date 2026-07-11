@@ -10,15 +10,19 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-users-permissions": "^5.0.0",
-    "@strapi/strapi": "^5.0.0",
+    "@strapi/plugin-users-permissions": "5.50.1",
+    "@strapi/strapi": "5.50.1",
     "bullmq": "^5.8.2",
     "ioredis": "^5.4.1",
     "openai": "^4.52.0",
-    "pg": "^8.11.0"
+    "pg": "^8.11.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.22.3",
+    "styled-components": "^6.1.8"
   },
   "devDependencies": {
-    "@strapi/typescript-utils": "^5.0.0",
+    "@strapi/typescript-utils": "5.50.1",
     "typescript": "^5.2.2"
   },
   "engines": {
