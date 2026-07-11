@@ -21,10 +21,16 @@ The platform is organized as a Turborepo monorepo split into clear layers:
 * Exposes localized REST/GraphQL APIs for dynamic content.
 * Maps landing pages dynamically through nested components (Hero, Spec Table, FAQ Accordions, and Case Studies).
 * **Health Monitoring**: Dedicated `/api/health` endpoint verifying active connections to both PostgreSQL and Redis.
+* **Visual SEO Auditor Plugin**: Custom React "Audit Page SEO" button integrated into the editing sidebar of Products, Solutions, and Case Studies, calling custom backend controller `/api/seo-audit` for code-free audits.
 
 ### Event-Driven Queue & Workers (`apps/cms/translation-worker`)
 * **BullMQ & Redis**-based asynchronous job processor.
 * Listens to Strapi content lifecycles to automatically translate technical specifications into other target European languages using the OpenAI API.
+
+### Telephony Layer (VoIP Center)
+* **Twilio Voice API**: Intercepts inbound calls on European local numbers, determines caller country prefix, and executes dynamic localized IVR routing.
+* **OpenAI Realtime WebSockets Gateway**: Next.js `/api/voip/stream` proxies Twilio raw mulaw audio chunks to OpenAI realtime services (`gpt-4o-realtime`) in under 400ms.
+* **CRM Ingestion**: Post-call Whisper transcription and structural requirement parsing hooked directly to HubSpot/Trello.
 
 ---
 
@@ -48,7 +54,12 @@ d:\AI-Project\Business\
 │   │       │   ├── [lang]/ (Multilingual pages: Home, Services, Projects, RFQ)
 │   │       │   ├── api/
 │   │       │   │   ├── rfq/route.ts (Presigned S3 upload & CAD binary validator)
-│   │       │   │   └── revalidate/route.ts (ISR cache invalidator)
+│   │       │   │   ├── revalidate/route.ts (ISR cache invalidator)
+│   │       │   │   ├── health/route.ts (Combined health-check endpoint)
+│   │       │   │   └── voip/
+│   │       │   │       ├── inbound/route.ts (Twilio TwiML & Country Prefix checker)
+│   │       │   │       ├── menu-selection/route.ts (IVR Gather decision broker)
+│   │       │   │       └── stream/route.ts (WebSocket proxy to OpenAI Realtime API)
 │   │       │   └── sitemap.xml/route.ts (Localized sitemap with hreflang maps)
 │   │       ├── components/ (React Dropzone, Header, and Footer components)
 │   │       └── lib/
@@ -57,9 +68,12 @@ d:\AI-Project\Business\
 │       ├── package.json
 │       ├── config/ (Database, middlewares, and cron settings)
 │       └── src/
+│           ├── admin/
+│           │   └── app.js (Injecting the 'Audit Page SEO' button into the sidebar)
 │           ├── api/
 │           │   ├── project/ (Strapi content-type collection schemas)
-│           │   └── health/ (Custom health check endpoint)
+│           │   ├── call-log/ (Strapi call archive collection schemas)
+│           │   └── seo-audit/ (Custom API endpoint for SEO/Schema validations)
 │           └── translation-worker/ (BullMQ worker code for AI translations)
 ```
 
@@ -91,10 +105,20 @@ d:\AI-Project\Business\
 * [x] Code background worker using OpenAI to translate technical B2B specs.
 
 ### Phase 5: Platform Deployment, Monitoring & Stability
-* [ ] Configure root-level `docker-compose.yml` for isolated developer environment.
-* [ ] Integrate Sentry SDK on frontend (Next.js) and backend (Strapi).
-* [ ] Build Strapi custom `/api/health` check endpoint.
-* [ ] Configure GitHub Actions CI/CD workflows (`deploy.yml`).
+* [x] Configure root-level `docker-compose.yml` for isolated PostgreSQL, Redis, Strapi, and Next.js containers.
+* [x] Integrate Sentry SDK on frontend (Next.js) for browser/server exceptions.
+* [x] Build Strapi custom `/api/health` check endpoint probing PG & Redis.
+* [x] Configure GitHub Actions CI/CD workflows (`deploy.yml`) running CAD Magic Number checks and production build compilations.
+
+### Phase 6: AI Multilingual VoIP Call Center Integration
+* [x] Set up Twilio inbound call webhook at `/api/voip/inbound` processing E.164 country prefixes.
+* [x] Build geo-targeted IVR Gather menu playing Polly Neural greetings in 9 target European languages with EU consent notices.
+* [x] Implement IVR Digit split routing at `/api/voip/menu-selection`:
+  * **Press 1**: Dial engineering hub directly with call recording and Whisper transcripts.
+  * **Press 2**: Fire WebSocket stream to `/api/voip/stream`.
+* [x] Code Next.js WebSocket media stream proxy to OpenAI Realtime API (`gpt-4o-realtime`).
+* [x] Create Strapi `call-log` content type schema.
+* [x] Implement post-call CRM summary and transcript logging pipelines.
 
 ---
 
@@ -145,7 +169,7 @@ To deploy the platform to a live staging/production environment, complete the fo
 Configure the environment variables in a `.env` file at the root or within workspace applications. Refer to [.env.example](file:///d:/AI-Project/Business/.env.example) for the full schema:
 
 ### Strapi CMS Integration
-* **`STRAPI_API_URL`**: The public URL pointing to your hosted Strapi CMS instance (e.g. `https://cms.metalhub.com` or `http://localhost:1337`).
+* **`STRAPI_API_URL`**: The public URL pointing to your hosted Strapi CMS instance.
 * **`STRAPI_API_TOKEN`**: The Bearer token generated inside the Strapi admin settings page.
 
 ### AWS S3 Storage
@@ -153,8 +177,8 @@ Configure the environment variables in a `.env` file at the root or within works
 * **`AWS_REGION`**: The target region where the bucket exists (e.g., `eu-west-1`).
 * **`AWS_S3_BUCKET`**: The exact bucket name (e.g., `metalhub-drawings`).
 
-### LLM Translations
-* **`OPENAI_API_KEY`**: The secret API key used by the BullMQ background workers to translate specs.
+### LLM Translations & Realtime VoIP
+* **`OPENAI_API_KEY`**: The secret API key used by the BullMQ background workers and the OpenAI Realtime WebSocket gateway.
 
 ### Redis Queue Config
 * **`REDIS_HOST`**: Host IP or domain of your Redis server.
@@ -162,10 +186,14 @@ Configure the environment variables in a `.env` file at the root or within works
 * **`REDIS_PASSWORD`**: (Optional) Secret password for Redis authentication.
 
 ### CRM Webhook Ingestion
-* **`CRM_WEBHOOK_URL`**: The webhook receiver endpoint (e.g. HubSpot Deals API, Zapier, or Trello Card Generator).
+* **`CRM_WEBHOOK_URL`**: The webhook receiver endpoint (HubSpot Deals API or Trello Card Generator).
 
 ### ISR Revalidation Token
 * **`REVALIDATION_SECRET`**: A cryptographically secure random string. Both Next.js and Strapi must share this token. When content changes in the CMS, it issues a POST to `/api/revalidate?secret=YOUR_TOKEN` to clear the static page cache instantly.
+
+### VoIP Telephony Configurations
+* **`CENTRAL_HUB_PHONE_NUMBER`**: The target destination number when callers press 1 on the IVR to speak directly to the engineering team.
+* **`NEXT_PUBLIC_DOMAIN`**: Domain hosting the Next.js WebSocket stream route (e.g. `metalhub.com`).
 
 ---
 
