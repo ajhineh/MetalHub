@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_shared_technical_specifications",
+  "info": {
+    "displayName": "Technical Specification",
+    "icon": "list",
+    "description": "Technical parameters"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "value": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
