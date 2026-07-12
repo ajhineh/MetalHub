@@ -18,7 +18,11 @@ node_modules/
 /out/
 
 # production
-/build
+build/
+dist/
+.cache/
+.strapi/
+.strapi-updater.json
 
 # misc
 .DS_Store
