@@ -70,6 +70,7 @@ export default function Header({ lang }: HeaderProps) {
     }
   };
 
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const currentLang = translations[lang] ? lang : 'en';
   const t = translations[currentLang];
 
@@ -100,15 +101,38 @@ export default function Header({ lang }: HeaderProps) {
           </div>
         </Link>
 
+        {/* Mobile Toggle Button */}
+        <button 
+          className={`${styles.menuToggle} ${isMenuOpen ? styles.menuToggleActive : ''}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle Navigation"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
         {/* Navigation Links */}
-        <nav className={styles.nav}>
-          <Link href={`/${lang}/services`} className={pathname?.includes('/services') ? styles.activeLink : ''}>
+        <nav className={`${styles.nav} ${isMenuOpen ? styles.navActive : ''}`}>
+          <Link 
+            href={`/${lang}/services`} 
+            className={pathname?.includes('/services') ? styles.activeLink : ''}
+            onClick={() => setIsMenuOpen(false)}
+          >
             {t.services}
           </Link>
-          <Link href={`/${lang}/projects`} className={pathname?.includes('/projects') ? styles.activeLink : ''}>
+          <Link 
+            href={`/${lang}/projects`} 
+            className={pathname?.includes('/projects') ? styles.activeLink : ''}
+            onClick={() => setIsMenuOpen(false)}
+          >
             {t.projects}
           </Link>
-          <Link href={`/${lang}/rfq`} className={`${styles.rfqBtn} btn btn-primary`}>
+          <Link 
+            href={`/${lang}/rfq`} 
+            className={`${styles.rfqBtn} btn btn-primary`}
+            onClick={() => setIsMenuOpen(false)}
+          >
             <span>{t.rfq}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2.5" fill="none">
               <path d="M5 12h14M12 5l7 7-7 7" />
@@ -116,26 +140,28 @@ export default function Header({ lang }: HeaderProps) {
           </Link>
           
           {/* Language Selector Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" style={{ marginRight: '6px', color: 'var(--text-muted)' }}>
-              <circle cx="12" cy="12" r="10" />
-              <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10M12 2a15.3 15.3 0 00-4 10 15.3 15.3 0 004 10" />
-            </svg>
-            <select 
-              value={lang} 
-              onChange={handleLanguageChange}
-              className={styles.langSelect}
-            >
-              <option value="en">EN</option>
-              <option value="fr">FR</option>
-              <option value="de">DE</option>
-              <option value="nl">NL</option>
-              <option value="es">ES</option>
-              <option value="it">IT</option>
-              <option value="no">NO</option>
-              <option value="sv">SV</option>
-              <option value="pl">PL</option>
-            </select>
+          <div className={styles.langWrapper}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" style={{ marginRight: '6px', color: 'var(--text-muted)' }}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10M12 2a15.3 15.3 0 00-4 10 15.3 15.3 0 004 10" />
+              </svg>
+              <select 
+                value={lang} 
+                onChange={handleLanguageChange}
+                className={styles.langSelect}
+              >
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="de">DE</option>
+                <option value="nl">NL</option>
+                <option value="es">ES</option>
+                <option value="it">IT</option>
+                <option value="no">NO</option>
+                <option value="sv">SV</option>
+                <option value="pl">PL</option>
+              </select>
+            </div>
           </div>
         </nav>
       </div>

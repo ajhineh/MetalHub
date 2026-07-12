@@ -142,7 +142,8 @@ a {
 
 .btn-primary {
   background-color: var(--color-amber);
-  color: #0b0e14;
+  color: #000000;
+  font-weight: 700;
 }
 
 .btn-primary:hover {

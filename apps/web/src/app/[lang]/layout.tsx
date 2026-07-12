@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import '../globals.css';
-import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
+import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -87,6 +88,7 @@ export default async function LangLayout({ children, params }: LayoutProps) {
           {children}
         </main>
         <Footer lang={langTag} />
+        <ScrollToTop />
       </body>
     </html>
   );

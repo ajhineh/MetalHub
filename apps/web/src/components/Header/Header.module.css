@@ -113,8 +113,111 @@
   color: #ffffff;
 }
 
+/* Mobile Responsive Menu and Elements styling */
 @media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 0;
+  }
+
+  .headerContainer {
+    position: relative;
+    padding: 0 1rem;
+  }
+
+  .logoText {
+    font-size: 1.15rem;
+  }
+
+  .logoSubtext {
+    font-size: 0.6rem;
+  }
+
   .nav {
-    display: none; /* In a real layout we'd do a mobile toggle, but let's keep it simple for now */
+    display: flex;
+    position: fixed;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    background: rgba(11, 14, 20, 0.96);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-steel-border);
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.25rem;
+    z-index: 99;
+    align-items: stretch;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    transform: translateY(-150%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .navActive {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav a {
+    font-size: 1.05rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    width: 100%;
+    display: block;
+  }
+
+  .rfqBtn {
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.8rem !important;
+    font-size: 0.95rem !important;
+    margin-top: 0.25rem;
+  }
+
+  .langWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+  }
+
+  /* Hamburger Menu Button */
+  .menuToggle {
+    display: flex !important;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 101;
+  }
+
+  .menuToggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .menuToggleActive span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .menuToggleActive span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menuToggleActive span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}
+
+@media (min-width: 769px) {
+  .menuToggle {
+    display: none;
   }
 }
