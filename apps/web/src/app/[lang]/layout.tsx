@@ -81,6 +81,58 @@ export default async function LangLayout({ children, params }: LayoutProps) {
             --font-space-grotesk: 'Space Grotesk', sans-serif;
           }
         `}} />
+
+        {/* Client-Side IP Geolocation Fallback */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var locales = ['en', 'fr', 'de', 'nl', 'es', 'it', 'no', 'sv', 'pl'];
+            
+            function getCookie(name) {
+              var value = "; " + document.cookie;
+              var parts = value.split("; " + name + "=");
+              if (parts.length == 2) return parts.pop().split(";").shift();
+            }
+
+            var hasGeolocated = getCookie('NEXT_LOCALE_GEOLOCATED');
+            var nextLocale = getCookie('NEXT_LOCALE');
+
+            if (!hasGeolocated && !nextLocale) {
+              document.cookie = "NEXT_LOCALE_GEOLOCATED=true;path=/;max-age=31536000;SameSite=Lax";
+              
+              fetch('https://ipapi.co/json/')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                  var country = (data.country_code || '').toUpperCase();
+                  var countryMap = {
+                    DE: 'de', AT: 'de', CH: 'de',
+                    FR: 'fr',
+                    NL: 'nl', BE: 'nl',
+                    ES: 'es',
+                    IT: 'it',
+                    NO: 'no',
+                    SE: 'sv',
+                    PL: 'pl'
+                  };
+                  var targetLang = countryMap[country] || 'en';
+                  
+                  // Save matching locale in cookie
+                  document.cookie = "NEXT_LOCALE=" + targetLang + ";path=/;max-age=31536000;SameSite=Lax";
+                  
+                  var pathname = window.location.pathname;
+                  var segments = pathname.split('/');
+                  var currentPrefix = segments[1];
+                  
+                  if (locales.indexOf(currentPrefix) !== -1 && currentPrefix !== targetLang) {
+                    segments[1] = targetLang;
+                    window.location.href = segments.join('/') || '/' + targetLang;
+                  }
+                })
+                .catch(function(err) {
+                  console.error("GeoIP lookup failed: ", err);
+                });
+            }
+          })();
+        `}} />
       </head>
       <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header lang={langTag} />

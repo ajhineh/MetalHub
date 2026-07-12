@@ -77,6 +77,7 @@ export default function Header({ lang }: HeaderProps) {
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const targetLang = e.target.value;
+    document.cookie = `NEXT_LOCALE=${targetLang};path=/;max-age=31536000;SameSite=Lax`;
     if (!pathname) return;
     const segments = pathname.split('/');
     segments[1] = targetLang;
