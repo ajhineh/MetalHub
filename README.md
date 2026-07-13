@@ -120,6 +120,11 @@ d:\AI-Project\Business\
 * [x] Create Strapi `call-log` content type schema.
 * [x] Implement post-call CRM summary and transcript logging pipelines.
 
+### Phase 7: Programmatic SEO & Content Generation
+* [x] Develop a standalone Node.js script (`scripts/generate-seo-content.js`) to generate highly targeted 500-word localized SEO articles for 80+ European cities.
+* [x] Integrate dual LLM support (OpenAI `gpt-4o-mini` and Google Gemini 1.5 Flash via `@google/genai` unified SDK for `AQ.` Project-scoped keys).
+* [x] Automatically inject AI-generated Hero Titles, Dynamic Content, FAQs, and SEO Metadata directly into the Strapi 5 database via REST.
+
 ---
 
 ## 4. Pre-Requisites & Steps to Go Live
@@ -154,9 +159,9 @@ To deploy the platform to a live staging/production environment, complete the fo
 * Spin up a Redis instance (e.g., Docker container, Upstash, or Redis Labs).
 * Note down the Redis host, port, and password. This will orchestrate the translation jobs for BullMQ.
 
-### 4. Setup OpenAI Account
-* Register on OpenAI Developer Platform.
-* Create an API Key and fund the account to gain access to `gpt-4o` or `gpt-4o-mini`.
+### 4. Setup OpenAI / Google AI Studio Account
+* Register on OpenAI Developer Platform or Google AI Studio (aistudio.google.com).
+* Generate a standard API Key (`AIzaSy...`) for Gemini or `OPENAI_API_KEY` to grant the background SEO scripts access to LLM endpoints.
 
 ### 5. Centralized Monitoring (Sentry)
 * Register a project on Sentry.io.
@@ -177,8 +182,9 @@ Configure the environment variables in a `.env` file at the root or within works
 * **`AWS_REGION`**: The target region where the bucket exists (e.g., `eu-west-1`).
 * **`AWS_S3_BUCKET`**: The exact bucket name (e.g., `metalhub-drawings`).
 
-### LLM Translations & Realtime VoIP
+### LLM Translations & Realtime VoIP & SEO Generation
 * **`OPENAI_API_KEY`**: The secret API key used by the BullMQ background workers and the OpenAI Realtime WebSocket gateway.
+* **`GEMINI_API_KEY`**: Optional API key for Google Gemini (supports both `AIzaSy...` AI Studio keys and `AQ...` unified keys via the `@google/genai` SDK).
 
 ### Redis Queue Config
 * **`REDIS_HOST`**: Host IP or domain of your Redis server.
