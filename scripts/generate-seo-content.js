@@ -5,10 +5,10 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const STRAPI_URL = process.env.NEXT_PUBLIC_CMS_URL || process.env.STRAPI_API_URL || 'http://127.0.0.1:1337';
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN || '';
 
-const testCities = [
-  { city: 'Berlin', slug: 'berlin', country: 'Germany', latitude: 52.5200, longitude: 13.4050 },
-  { city: 'Munich', slug: 'munich', country: 'Germany', latitude: 48.1351, longitude: 11.5820 },
-  { city: 'Paris', slug: 'paris', country: 'France', latitude: 48.8566, longitude: 2.3522 },
+const cities = [
+  { city: 'Berlin', slug: 'berlin', country: 'Germany' },
+  { city: 'Munich', slug: 'munich', country: 'Germany' },
+  { city: 'Paris', slug: 'paris', country: 'France' }
 ];
 
 const BOILERPLATE_CONTENT = `
@@ -49,7 +49,7 @@ async function generateCityContent(cityData) {
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         temperature: 0.7,
@@ -122,22 +122,20 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Starting Programmatic SEO Generation for ${testCities.length} test cities using Gemini 1.5 Flash...`);
+  console.log(`Starting Programmatic SEO Generation for ${cities.length} cities using Gemini 1.5 Pro...`);
 
-  for (const city of testCities) {
+  for (const city of cities) {
     try {
       const aiContent = await generateCityContent(city);
       await publishToStrapi(city, aiContent);
-      
-      // Delay to respect rate limits (15 RPM)
-      console.log('Waiting 5 seconds to respect rate limits...');
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    } catch (error) {
-      console.error(`❌ Failed to process ${city.city}:`, error.message);
+      // Wait 3 seconds to avoid rate limiting
+      await new Promise(res => setTimeout(res, 3000));
+    } catch (err) {
+      console.error(`❌ Failed to process ${city.city}:`, err.message);
     }
   }
-  
-  console.log('🎉 Test generation complete!');
+
+  console.log('🎉 Generation complete!');
 }
 
 main();

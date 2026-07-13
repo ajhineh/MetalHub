@@ -4,7 +4,7 @@ module.exports = ({ env }) => ({
       jwtSecret: env('JWT_SECRET', 'change-me-in-production'),
     },
   },
-  seo: {
+  'strapi-plugin-seo-gemini': {
     enabled: true,
   },
   'strapi-advanced-sitemap': {
