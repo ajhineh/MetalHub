@@ -10,7 +10,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // 1. Generate 2-hour pre-signed download link for our engineering hub in Iran
-    const bucketName = process.env.AWS_S3_BUCKET || 'metalhub-drawings';
+    const bucketName = process.env.AWS_S3_BUCKET || 'SideroHub-drawings';
     const s3Region = process.env.AWS_REGION || 'eu-west-1';
     const downloadUrl = `https://${bucketName}.s3.${s3Region}.amazonaws.com/${s3Key}?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Expires=${Math.floor(Date.now() / 1000) + 7200}&Signature=DownloadSignatureVal`;
 

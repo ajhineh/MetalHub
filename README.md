@@ -1,6 +1,6 @@
 # B2B Industrial Steel Contracting Platform - Monorepo Guide
 
-Welcome to the official repository of **MetalHub**, a high-performance B2B digital contracting platform specializing in industrial steel structure supply, CAD engineering, and hybrid outsourced fabrication across the European Union.
+Welcome to the official repository of **SideroHub**, a high-performance B2B digital contracting platform specializing in industrial steel structure supply, CAD engineering, and hybrid outsourced fabrication across the European Union.
 
 This project is built using a modern **Turborepo monorepo** architecture designed for enterprise-grade security, lightning-fast performance (Lighthouse score 95-100), and automated dynamic translation pipelines.
 
@@ -193,7 +193,7 @@ Configure the environment variables in a `.env` file at the root or within works
 
 ### VoIP Telephony Configurations
 * **`CENTRAL_HUB_PHONE_NUMBER`**: The target destination number when callers press 1 on the IVR to speak directly to the engineering team.
-* **`NEXT_PUBLIC_DOMAIN`**: Domain hosting the Next.js WebSocket stream route (e.g. `metalhub.com`).
+* **`NEXT_PUBLIC_DOMAIN`**: Domain hosting the Next.js WebSocket stream route (e.g. `siderohub.com`).
 
 ---
 
@@ -252,7 +252,7 @@ We utilize the developer auditing tool [Claude-seo](https://github.com/AgriciDan
 
 ### Unused & Redundant Features
 1. **Auto-Content Generation**: Disabled. We use our own custom background workers (BullMQ + OpenAI) integrated directly into Strapi model lifecycles for technical accuracy.
-2. **E-commerce Structured Data**: Disabled. MetalHub is an industrial, project-based contracting platform (RFQ-based), not retail.
+2. **E-commerce Structured Data**: Disabled. SideroHub is an industrial, project-based contracting platform (RFQ-based), not retail.
 
 ### Implementation Workflow
 This tool is integrated directly in the codebase as a native workspace custom skill:

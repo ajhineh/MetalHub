@@ -18,7 +18,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Terms of Service',
       privacy: 'Privacy (GDPR)',
       rights: 'All rights reserved.',
-      estoniaInfo: 'MetalHub OÜ • Registration: 14920831 • VAT: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
+      estoniaInfo: 'SideroHub OÜ • Registration: 14920831 • VAT: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
     },
     fr: {
       desc: 'Plateforme digitale de sous-traitance industrielle B2B de structures métalliques. Approvisionnement aux normes EN et fabrication locale dans l\'UE.',
@@ -31,7 +31,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Conditions Générales (CGU)',
       privacy: 'Confidentialité (RGPD)',
       rights: 'Tous droits réservés.',
-      estoniaInfo: 'MetalHub OÜ • Immatriculation: 14920831 • TVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonie'
+      estoniaInfo: 'SideroHub OÜ • Immatriculation: 14920831 • TVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonie'
     },
     de: {
       desc: 'Digitale B2B-Vertragsplattform für individuelle Industriestahlkonstruktionen. Rohstoffeinkauf nach EN-Normen und lokale Fertigung in der EU.',
@@ -44,7 +44,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Nutzungsbedingungen',
       privacy: 'Datenschutz (DSGVO)',
       rights: 'Alle Rechte vorbehalten.',
-      estoniaInfo: 'MetalHub OÜ • Register: 14920831 • USt-IdNr: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
+      estoniaInfo: 'SideroHub OÜ • Register: 14920831 • USt-IdNr: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
     },
     nl: {
       desc: 'Digitaal B2B-contractplatform voor op maat gemaakte industriële staalconstructies. Inkoop van grondstoffen volgens EN-normen en lokale fabricage in de EU.',
@@ -57,7 +57,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Algemene voorwaarden',
       privacy: 'Privacy (AVG)',
       rights: 'Alle rechten voorbehouden.',
-      estoniaInfo: 'MetalHub OÜ • Registratie: 14920831 • BTW: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
+      estoniaInfo: 'SideroHub OÜ • Registratie: 14920831 • BTW: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
     },
     es: {
       desc: 'Plataforma de contratación digital B2B para estructuras metálicas industriales personalizadas. Suministro según normas EN y fabricación local en la UE.',
@@ -70,7 +70,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Términos del Servicio',
       privacy: 'Privacidad (RGPD)',
       rights: 'Todos los derechos reservados.',
-      estoniaInfo: 'MetalHub OÜ • Registro: 14920831 • IVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
+      estoniaInfo: 'SideroHub OÜ • Registro: 14920831 • IVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
     },
     it: {
       desc: 'Piattaforma digitale B2B per carpenteria metallica industriale personalizzata. Approvvigionamento secondo norme EN e produzione locale nell\'UE.',
@@ -83,7 +83,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Termini di Servizio',
       privacy: 'Privacy (GDPR)',
       rights: 'Tutti i diritti riservati.',
-      estoniaInfo: 'MetalHub OÜ • Registrazione: 14920831 • P.IVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
+      estoniaInfo: 'SideroHub OÜ • Registrazione: 14920831 • P.IVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
     },
     no: {
       desc: 'Digital B2B-kontraktsplattform for skreddersydde industrielle stålkonstruksjoner. Materialinnkjøp etter EN-standarder og lokal fabrikasjon i EU.',
@@ -96,7 +96,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Brukervilkår',
       privacy: 'Personvern (GDPR)',
       rights: 'Alle rettigheter forbeholdt.',
-      estoniaInfo: 'MetalHub OÜ • Reg: 14920831 • MVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
+      estoniaInfo: 'SideroHub OÜ • Reg: 14920831 • MVA: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
     },
     sv: {
       desc: 'Digital B2B-plattform för skräddarsydda industriella stålkonstruktioner. Materialinköp enligt EN-standarder och lokal tillverkning i EU.',
@@ -109,7 +109,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Användarvillkor',
       privacy: 'Integritetspolicy (GDPR)',
       rights: 'Alla rättigheter förbehållna.',
-      estoniaInfo: 'MetalHub OÜ • Reg.nr: 14920831 • VAT: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
+      estoniaInfo: 'SideroHub OÜ • Reg.nr: 14920831 • VAT: EE102298712 • Rotermanni 6, 10111 Tallinn, Estland'
     },
     pl: {
       desc: 'Cyfrowa platforma kontraktacji B2B dla niestandardowych konstrukcji stalowych. Pozyskiwanie surowców wg norm EN i lokalna produkcja w UE.',
@@ -122,7 +122,7 @@ export default function Footer({ lang }: FooterProps) {
       terms: 'Regulamin',
       privacy: 'Prywatność (RODO)',
       rights: 'Wszelkie prawa zastrzeżone.',
-      estoniaInfo: 'MetalHub OÜ • Nr rej.: 14920831 • NIP: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
+      estoniaInfo: 'SideroHub OÜ • Nr rej.: 14920831 • NIP: EE102298712 • Rotermanni 6, 10111 Tallinn, Estonia'
     }
   };
 
@@ -180,7 +180,7 @@ export default function Footer({ lang }: FooterProps) {
       <div className={styles.bottomBar}>
         <div className="container flex-center" style={{ flexDirection: 'column', gap: '0.5rem', textAlign: 'center' }}>
           <p className={styles.estoniaInfo}>{t.estoniaInfo}</p>
-          <p className={styles.copyright}>© {new Date().getFullYear()} MetalHub OÜ. {t.rights}</p>
+          <p className={styles.copyright}>© {new Date().getFullYear()} SideroHub OÜ. {t.rights}</p>
         </div>
       </div>
     </footer>

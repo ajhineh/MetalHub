@@ -1,8 +1,8 @@
 {
-  "name": "metalhub-cms",
+  "name": "SideroHub-cms",
   "private": true,
   "version": "1.0.0",
-  "description": "MetalHub Headless CMS - Strapi 5",
+  "description": "SideroHub Headless CMS - Strapi 5",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",
@@ -10,8 +10,10 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@strapi/plugin-seo": "^2.0.9",
     "@strapi/plugin-users-permissions": "5.50.1",
     "@strapi/strapi": "5.50.1",
+    "@webbycrown/strapi-advanced-sitemap": "^1.0.7",
     "bullmq": "^5.8.2",
     "ioredis": "^5.4.1",
     "openai": "^4.52.0",
@@ -19,6 +21,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.3",
+    "strapi-llm-translator": "^0.11.0",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

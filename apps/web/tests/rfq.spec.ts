@@ -36,7 +36,7 @@ test.describe('B2B RFQ Portal - Security & E2E Flow', () => {
     // Fill step 1
     await page.fill('input[name="companyName"]', 'Malware Test Org');
     await page.fill('input[name="contactName"]', 'Security Auditor');
-    await page.fill('input[name="email"]', 'audit@metalhub.com');
+    await page.fill('input[name="email"]', 'audit@SideroHub.com');
     await page.fill('input[name="phone"]', '+331234567');
     await page.locator('button:has-text("Next")').click();
 

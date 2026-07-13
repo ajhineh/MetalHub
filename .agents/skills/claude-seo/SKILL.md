@@ -5,7 +5,7 @@ description: Technical SEO auditor, schema.org JSON-LD validator, and multilingu
 
 # Claude-SEO Custom Agent Skill
 
-This skill converts your agent into a specialized **B2B Industrial SEO Auditor** tailored for the MetalHub platform (Next.js 15 + Strapi 5). It contains technical check scripts, schema.org guidelines, local French SEO mappings, and semantic clustering rules.
+This skill converts your agent into a specialized **B2B Industrial SEO Auditor** tailored for the SideroHub platform (Next.js 15 + Strapi 5). It contains technical check scripts, schema.org guidelines, local French SEO mappings, and semantic clustering rules.
 
 ---
 
@@ -28,9 +28,9 @@ When this skill is invoked (e.g., by asking the agent to "run technical SEO audi
 * Confirm that no locale has broken self-referencing links or missing cross-references.
 
 ### Checkpoint B: Structured Data & B2B Schemas (JSON-LD)
-MetalHub requires strict B2B structural schema injection. Audit Next.js layouts and page metadata to ensure:
+SideroHub requires strict B2B structural schema injection. Audit Next.js layouts and page metadata to ensure:
 * **Product Schema**: Configured for industrial products, including properties for structural materials, steel grades (e.g., `S355J2+N`, `S235JR`), and certification standards (e.g., `EN 1090-2 Execution Class EXC2`).
-* **LocalBusiness / Organization Schema**: Configured for the Estonian HQ (`MetalHub OÜ`, Tallinn) and maps French partner workshops (Lyon, Lille, Strasbourg) with correct address structures.
+* **LocalBusiness / Organization Schema**: Configured for the Estonian HQ (`SideroHub OÜ`, Tallinn) and maps French partner workshops (Lyon, Lille, Strasbourg) with correct address structures.
 * Check that schemas are correctly serialized as `application/ld+json` inside `<script>` tags in `layout.tsx` or page files.
 
 ### Checkpoint C: French Local SEO & Regional Keywords

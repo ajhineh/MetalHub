@@ -16,39 +16,39 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   
   const titles: Record<string, { title: string; desc: string }> = {
     en: {
-      title: 'B2B Industrial Steel Structures supply in Europe | MetalHub',
+      title: 'B2B Industrial Steel Structures supply in Europe | SideroHub',
       desc: 'Custom engineering, material sourcing, and localized European fabrication of heavy steel frames. Get a quote within 48h.'
     },
     fr: {
-      title: 'Sous-traitance de Structures Métalliques en Europe | MetalHub',
+      title: 'Sous-traitance de Structures Métalliques en Europe | SideroHub',
       desc: 'Conception, approvisionnement et fabrication de structures métalliques (châssis, passerelles) aux normes EN 1090. Devis gratuit sous 48h.'
     },
     de: {
-      title: 'B2B Industrielle Stahlkonstruktionen in Europa | MetalHub',
+      title: 'B2B Industrielle Stahlkonstruktionen in Europa | SideroHub',
       desc: 'Maßgeschneidertes Engineering, Materialbeschaffung und lokale europäische Fertigung von schweren Stahlrahmen. Angebot anfordern.'
     },
     nl: {
-      title: 'B2B Industriële Staalconstructies in Europa | MetalHub',
+      title: 'B2B Industriële Staalconstructies in Europa | SideroHub',
       desc: 'Engineering op maat, inkoop van gecertificeerde materialen en lokale Europese productie van zware frames.'
     },
     es: {
-      title: 'Suministro B2B de Estructuras Metálicas en Europa | MetalHub',
+      title: 'Suministro B2B de Estructuras Metálicas en Europa | SideroHub',
       desc: 'Diseño estructural, suministro de acero certificado y fabricación local en Europa. Presupuesto en 48 horas.'
     },
     it: {
-      title: 'Carpenteria Metallica Industriale B2B in Europa | MetalHub',
+      title: 'Carpenteria Metallica Industriale B2B in Europa | SideroHub',
       desc: 'Progettazione su misura, sourcing certificato e fabbricazione locale di carpenteria pesante. Preventivo rapido.'
     },
     no: {
-      title: 'B2B Industrielle Stålkonstruksjoner i Europa | MetalHub',
+      title: 'B2B Industrielle Stålkonstruksjoner i Europa | SideroHub',
       desc: 'Sertifisert prosjektering, materialinnkjøp og lokal fabrikasjon av tunge stålrammer i Europa.'
     },
     sv: {
-      title: 'B2B Industriella Stålkonstruktioner i Europa | MetalHub',
+      title: 'B2B Industriella Stålkonstruktioner i Europa | SideroHub',
       desc: 'Anpassad konstruktion, materialförsörjning och lokal tillverkning av tunga stålramar i Europa.'
     },
     pl: {
-      title: 'Konstrukcje Stalowe B2B w Europie | MetalHub',
+      title: 'Konstrukcje Stalowe B2B w Europie | SideroHub',
       desc: 'Projektowanie, certyfikowane zaopatrzenie i lokalna produkcja ciężkich ram stalowych. Zapytaj o wycenę.'
     }
   };

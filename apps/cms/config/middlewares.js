@@ -20,7 +20,7 @@ module.exports = [
       // Restricting origins exclusively to the production domain and localhost
       origin: [
         'http://localhost:3000',
-        'https://metalhub.com'
+        'https://SideroHub.com'
       ],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],

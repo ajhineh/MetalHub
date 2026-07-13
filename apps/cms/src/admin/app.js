@@ -17,7 +17,7 @@ export default {
     ],
     translations: {
       en: {
-        "app.components.LeftMenu.navbrand.title": "MetalHub Admin Dashboard",
+        "app.components.LeftMenu.navbrand.title": "SideroHub Admin Dashboard",
         "app.components.LeftMenu.navbrand.workspaces": "B2B Steel Contracting",
         "content-manager.containers.EditView.seo-audit-button": "Audit Page SEO"
       }
@@ -25,7 +25,7 @@ export default {
   },
   
   bootstrap(app) {
-    console.info('[MetalHub CMS] Registering Admin Custom SEO extensions...');
+    console.info('[SideroHub CMS] Registering Admin Custom SEO extensions...');
 
     /**
      * Injected Sidebar React Component mapping details:

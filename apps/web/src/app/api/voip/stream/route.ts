@@ -33,7 +33,7 @@ export async function GET() {
  */
 
 const VOIP_SYSTEM_PROMPT = `
-You are the official AI Technical Assistant for MetalHub Europe, an enterprise B2B steel structure contracting platform.
+You are the official AI Technical Assistant for SideroHub Europe, an enterprise B2B steel structure contracting platform.
 Your primary task is to act as a flawless, real-time bi-directional translator and support agent.
 
 CRITICAL OPERATIONAL RULES:

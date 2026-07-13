@@ -1,4 +1,4 @@
-name: MetalHub Monorepo CI/CD Pipeline
+name: SideroHub Monorepo CI/CD Pipeline
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
           STRAPI_API_URL: http://localhost:1337
           STRAPI_API_TOKEN: ${{ secrets.STRAPI_API_TOKEN }}
           AWS_REGION: eu-west-1
-          AWS_S3_BUCKET: metalhub-drawings
+          AWS_S3_BUCKET: SideroHub-drawings
           REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
 
   deploy:

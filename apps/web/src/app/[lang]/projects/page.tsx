@@ -183,7 +183,7 @@ export default async function ProjectsPage({ params }: PageProps) {
             "description": t.subtitle,
             "brand": {
               "@type": "Brand",
-              "name": "MetalHub"
+              "name": "SideroHub"
             },
             "offers": {
               "@type": "AggregateOffer",

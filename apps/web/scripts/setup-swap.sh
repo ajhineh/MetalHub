@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# MetalHub Production Hardening: 4GB Swap Space Configuration Script
+# SideroHub Production Hardening: 4GB Swap Space Configuration Script
 # Target OS: Ubuntu / Debian Linux on AWS EC2 (t4g.small ARM64)
 # ==============================================================================
 

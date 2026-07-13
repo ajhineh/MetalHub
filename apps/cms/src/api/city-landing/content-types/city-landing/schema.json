@@ -1,0 +1,120 @@
+{
+  "kind": "collectionType",
+  "collectionName": "city_landings",
+  "info": {
+    "singularName": "city-landing",
+    "pluralName": "city-landings",
+    "displayName": "City Landing Page",
+    "description": "Programmatic SEO pages for European cities"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "city": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "city",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "country": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latitude": {
+      "type": "float",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "longitude": {
+      "type": "float",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "heroTitle": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "contentBody": {
+      "type": "richtext",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsCount": {
+      "type": "integer",
+      "default": 12,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "distanceKm": {
+      "type": "integer",
+      "default": 150,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "faq": {
+      "type": "richtext",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

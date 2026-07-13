@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bucketName = process.env.AWS_S3_BUCKET || 'metalhub-drawings';
+    const bucketName = process.env.AWS_S3_BUCKET || 'SideroHub-drawings';
     const fileKey = `drawings/${Date.now()}-${crypto.randomBytes(4).toString('hex')}-${filename}`;
 
     // 3. Generate AWS S3 Presigned PUT URL (expires in 1 hour / 3600 seconds)
