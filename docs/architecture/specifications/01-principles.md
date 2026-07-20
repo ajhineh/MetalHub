@@ -1,0 +1,31 @@
+# 01-Principles & Anti-Principles
+
+## Principles
+- **PRN-001**: MetalHub empowers humans. [Source: Architecture Consolidation]
+- **PRN-002**: Knowledge must compound. [Source: Architecture Consolidation]
+- **PRN-003**: Guidance must be adaptive. [Source: Architecture Consolidation]
+- **PRN-004**: Trust must be designed. [Source: Architecture Consolidation]
+- **PRN-005**: Engineering Before Commerce. [Source: Volume I, Chapter 5]
+- **PRN-006**: Certainty Before Speed. [Source: Volume I, Chapter 5]
+- **PRN-007**: Every Decision Must Be Traceable. [Source: Volume I, Chapter 5]
+- **PRN-008**: One Source of Truth. [Source: Volume I, Chapter 5]
+- **PRN-009**: Workflow Is the Product. [Source: Volume I, Chapter 5]
+- **PRN-010**: Evidence Over Claims. [Source: Volume I, Chapter 5]
+- **PRN-011**: Knowledge Must Compound. [Source: Volume I, Chapter 5]
+- **PRN-012**: The Platform Never Sleeps. [Source: Volume I, Chapter 5]
+- **PRN-013**: Transparency Builds Trust. [Source: Volume I, Chapter 5]
+- **PRN-014**: Data Is the Primary Asset. [Source: Volume I, Chapter 5]
+- **PRN-015**: Principles Before Policies. [Source: Volume X, Chapter 5.2]
+- **PRN-016**: A healthy industrial ecosystem is not the one with the most rules, but the one whose principles make the right behavior the easiest behavior. [Source: Volume X, Chapter 5]
+- **PRN-017**: A platform becomes sustainable not when it scales its software, but when it scales its ability to preserve its principles while growing. [Source: Volume XI, Chapter 4]
+- **PRN-018**: The Network Value Principle - Every new member must create more value for the ecosystem than for themselves. [Source: Volume XI, Chapter 6.2]
+- **PRN-019**: Principle Continuity - Principles are more important than people. [Source: Volume XI, Chapter 10]
+- **PRN-020**: Knowledge Continuity - Knowledge must remain independent of individuals' memory. [Source: Volume XI, Chapter 10]
+- **PRN-021**: Decision Continuity - The logic of decisions must be understandable to future generations. [Source: Volume XI, Chapter 10]
+
+## Anti-Principles
+- **APR-001**: MetalHub does not replace humans. [Source: Architecture Consolidation]
+- **APR-002**: Data accumulation without refinement is not knowledge. [Source: Architecture Consolidation]
+- **APR-003**: Guidance must not lead to user dependency. [Source: Architecture Consolidation]
+- **APR-004**: Trust must never be gained through obfuscation or exaggeration. [Source: Architecture Consolidation]
+- **APR-005**: Collaboration Without Dependence - Collaboration must not create unhealthy dependencies. [Source: Volume X, Chapter 4.7]
