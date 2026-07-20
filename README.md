@@ -22,9 +22,14 @@ Before writing any new application code, the entire system has been meticulously
 * **`/04-data`**: Logical data models and Aggregates.
 * **`/05-ai`**: AI Subsystems (Guidance Engine, Decision Engine, Knowledge Graph).
 * **`/06-api` to `/12-quality`**: Interfaces, UI Philosophy, Security, DevOps, Roadmap, Research, and Quality.
-* **`/adr`**: Architecture Decision Records.
+* **`/adr`**: [Architecture Decision Records](docs/architecture/adr/) (Tracking why decisions were made).
 
-*All future software implementation (Phase 9) will directly map to these specifications.*
+> 🧭 **Documentation Hub**: Please start by reading the [**Master INDEX.md**](docs/INDEX.md) which maps all 12 Volumes of the system's narrative Constitution to these 13 architecture folders.
+
+### The Migration Plan (Phase 9 Refactor)
+The current `apps/web` and `apps/cms` codebase will be completely refactored in **Phase 9** to comply with the C4-models defined in `/03-system`. We are adopting a strict "Documentation-First" approach ([ADR-001](docs/architecture/adr/ADR-001-Documentation-First-Approach.md)) to prevent technical debt and ensure the final software perfectly mirrors the original vision.
+
+*All future software implementation will directly map to these specifications.*
 
 ---
 
