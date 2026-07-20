@@ -6,8 +6,32 @@ This project is built using a modern **Turborepo monorepo** architecture designe
 
 ---
 
-## 1. Architectural Specs & Technical Stack
-The platform is organized as a Turborepo monorepo split into clear layers:
+> [!WARNING]  
+> **ARCHITECTURE DEPRECATION NOTICE**  
+> The technical stack and directory layout documented below belong to the initial prototyping phase (Phase 1).  
+> **These structures are NO LONGER VALID.** We have fundamentally shifted the system architecture toward the **MetalHub Industrial Operating Philosophy**.  
+> **Future State:** The old `apps/web` and `apps/cms` (Next.js/Strapi) approach is being entirely re-engineered. The new implementation will be strictly driven by the **Architecture Knowledge Base** (The Digital Brain), which includes Event-Driven Decision Engines, Neo4j Knowledge Graphs, and a dedicated Guidance UI.
+
+## 1. The Digital Brain: Architecture Knowledge Base (NEW)
+Before writing any new application code, the entire system has been meticulously designed in the `docs/architecture` directory. This 13-folder structure acts as the living engineering encyclopedia of the project:
+
+* **`/00-foundation`**: Core philosophy, Vision, Mission, and Identity.
+* **`/01-domain`**: Domain-Driven Design (DDD) entities (Supplier, Buyer, RFQ, Decision).
+* **`/02-business`**: Business capabilities and workflows.
+* **`/03-system`**: C4 Models (Context, Container, Component, Deployment).
+* **`/04-data`**: Logical data models and Aggregates.
+* **`/05-ai`**: AI Subsystems (Guidance Engine, Decision Engine, Knowledge Graph).
+* **`/06-api` to `/12-quality`**: Interfaces, UI Philosophy, Security, DevOps, Roadmap, Research, and Quality.
+* **`/adr`**: Architecture Decision Records.
+
+*All future software implementation (Phase 9) will directly map to these specifications.*
+
+---
+
+## 2. Legacy Architectural Specs & Technical Stack (DEPRECATED)
+*(Note: The stack below is no longer the target architecture. It will be replaced based on the C4 models in `/docs/architecture/03-system`.)*
+
+The legacy prototype was organized as a Turborepo monorepo split into clear layers:
 
 ### Presentation Layer (`apps/web`)
 * **Next.js 15 (App Router)** & React Server Components for highly optimized page rendering.
@@ -34,7 +58,7 @@ The platform is organized as a Turborepo monorepo split into clear layers:
 
 ---
 
-## 2. Directory Layout & Monorepo Structure
+## 3. Legacy Directory Layout & Monorepo Structure (DEPRECATED)
 
 ```
 d:\AI-Project\Business\
@@ -79,7 +103,7 @@ d:\AI-Project\Business\
 
 ---
 
-## 3. Core Features & Task Progress
+## 4. Core Features & Task Progress
 
 ### Phase 1: Turborepo & Frontend Setup
 * [x] Initialize Turborepo core configuration (`package.json`, `turbo.json`).
@@ -127,7 +151,7 @@ d:\AI-Project\Business\
 
 ---
 
-## 4. Pre-Requisites & Steps to Go Live
+## 5. Pre-Requisites & Steps to Go Live
 
 To deploy the platform to a live staging/production environment, complete the following prerequisites:
 
@@ -169,7 +193,7 @@ To deploy the platform to a live staging/production environment, complete the fo
 
 ---
 
-## 5. API Connection & Configuration Reference
+## 6. API Connection & Configuration Reference
 
 Configure the environment variables in a `.env` file at the root or within workspace applications. Refer to [.env.example](file:///d:/AI-Project/Business/.env.example) for the full schema:
 
@@ -203,7 +227,7 @@ Configure the environment variables in a `.env` file at the root or within works
 
 ---
 
-## 6. Local Development via Docker Compose
+## 7. Local Development via Docker Compose
 
 To spin up the entire ecosystem (Next.js, Strapi 5, PostgreSQL, Redis) locally for development:
 ```bash
@@ -216,7 +240,7 @@ docker compose down
 
 ---
 
-## 7. Production AWS EC2 ARM64 (Graviton) Deployment
+## 8. Production AWS EC2 ARM64 (Graviton) Deployment
 
 For deploying to restricted memory nodes (such as `t4g.small` instances with 2GB RAM and ARM64 processors), execute the following steps on the host:
 
@@ -246,7 +270,7 @@ docker compose -f docker-compose.prod.yml down
 
 ---
 
-## 8. Pre-Deployment SEO & Content Audit Integration
+## 9. Pre-Deployment SEO & Content Audit Integration
 
 We utilize the developer auditing tool [Claude-seo](https://github.com/AgriciDaniel/Claude-seo) to verify our B2B optimization parameters before final deployments. 
 
