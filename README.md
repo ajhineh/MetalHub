@@ -26,6 +26,13 @@ Before writing any new application code, the entire system has been meticulously
 
 > 🧭 **Documentation Hub**: Please start by reading the [**Master INDEX.md**](docs/INDEX.md) which maps all 12 Volumes of the system's narrative Constitution to these 13 architecture folders.
 
+### How to Use This Documentation
+To understand and build MetalHub, follow this reading order:
+1. **Start with the Constitution**: Read the 12 Volumes in `docs/md/books/` to understand the *Why* (Business philosophy, Domain knowledge, Voice & Identity).
+2. **Review the Digital Brain**: Dive into `docs/architecture/00-foundation/` and work your way up to `/07-ui/` to understand the *How* (Entities, Capabilities, C4 Diagrams, AI Engines).
+3. **Check the Decisions**: Read `docs/architecture/adr/` to see why specific technical paths were chosen. (Use `TEMPLATE.md` to propose new decisions).
+4. **Implement**: All code written in `apps/web` and `apps/cms` must strictly adhere to the rules established in these documents.
+
 ### The Migration Plan (Phase 9 Refactor)
 The current `apps/web` and `apps/cms` codebase will be completely refactored in **Phase 9** to comply with the C4-models defined in `/03-system`. We are adopting a strict "Documentation-First" approach ([ADR-001](docs/architecture/adr/ADR-001-Documentation-First-Approach.md)) to prevent technical debt and ensure the final software perfectly mirrors the original vision.
 
