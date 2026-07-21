@@ -1,0 +1,11 @@
+.git
+.agents
+.turbo
+.next
+node_modules
+apps/cms
+docs
+scripts
+*.tar.gz
+*.jsonl
+.vercel

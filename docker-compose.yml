@@ -81,9 +81,66 @@ services:
     networks:
       - metalhub-net
 
+  # 5. Neo4j Knowledge Graph
+  neo4j:
+    image: neo4j:5-community
+    container_name: metalhub-neo4j
+    restart: always
+    environment:
+      NEO4J_AUTH: neo4j/secure_neo4j_password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4jdata:/data
+    networks:
+      - metalhub-net
+
+  # 6. RabbitMQ Message Bus
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: metalhub-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: metalhub_mq
+      RABBITMQ_DEFAULT_PASS: secure_mq_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - mqdata:/var/lib/rabbitmq/mnesia
+    networks:
+      - metalhub-net
+
+  # 7. Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus
+    container_name: metalhub-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    networks:
+      - metalhub-net
+
+  # 8. Grafana Dashboard
+  grafana:
+    image: grafana/grafana
+    container_name: metalhub-grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: secure_grafana_password
+    depends_on:
+      - prometheus
+    networks:
+      - metalhub-net
+
 volumes:
   pgdata:
   redisdata:
+  neo4jdata:
+  mqdata:
 
 networks:
   metalhub-net:

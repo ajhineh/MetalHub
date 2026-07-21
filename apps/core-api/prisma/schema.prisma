@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------
+// Core Aggregates based on /docs/architecture/04-data
+// -----------------------------------------------------
+
+enum RFQStatus {
+  DRAFT
+  PUBLISHED
+  EVALUATING
+  AWARDED
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      String   // "BUYER" | "SUPPLIER" | "ADMIN"
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  rfqs      RFQ[]    @relation("BuyerRFQs")
+}
+
+model RFQ {
+  id                  String    @id @default(uuid())
+  buyerId             String
+  title               String
+  status              RFQStatus @default(DRAFT)
+  submissionDeadline  DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Commercial Terms (Value Object embedded)
+  incoterms           String?
+  paymentTerms        String?
+  deliveryLocation    String?
+
+  // Relationships
+  buyer               User                  @relation("BuyerRFQs", fields: [buyerId], references: [id])
+  lineItems           LineItem[]
+  clarifications      ClarificationThread[]
+}
+
+model LineItem {
+  id                     String   @id @default(uuid())
+  rfqId                  String
+  description            String
+  quantity               Int
+  targetPrice            Float?
+  requiredCertifications String[] // Prisma supports scalar lists in PostgreSQL
+
+  // Relationships
+  rfq                    RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+}
+
+model ClarificationThread {
+  id        String   @id @default(uuid())
+  rfqId     String
+  question  String
+  answer    String?
+  isPublic  Boolean  @default(false)
+
+  // Relationships
+  rfq       RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+}
+
+// -----------------------------------------------------
+// Event Sourcing (Audit Trail)
+// -----------------------------------------------------
+model EventLog {
+  id          String   @id @default(uuid())
+  aggregateId String   // e.g. RFQId
+  eventType   String   // e.g. "RFQDrafted", "RFQPublished"
+  payload     Json     // Event payload
+  timestamp   DateTime @default(now())
+}

@@ -17,8 +17,13 @@ interface CityLandingProps {
 
 async function getCityLanding(slug: string, locale: string) {
   try {
+    const apiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+    if (!apiUrl) {
+      console.warn("NEXT_PUBLIC_STRAPI_API_URL is undefined. Returning null.");
+      return null;
+    }
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/city-landings?filters[slug][$eq]=${slug}&locale=${locale}&populate=*`,
+      `${apiUrl}/api/city-landings?filters[slug][$eq]=${slug}&locale=${locale}&populate=*`,
       { next: { revalidate: 86400 } }
     );
     if (!res.ok) return null;
@@ -55,7 +60,13 @@ export async function generateMetadata(props: CityLandingProps): Promise<Metadat
 
 export async function generateStaticParams() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/city-landings?locale=all&fields[0]=slug&fields[1]=locale`, {
+    const apiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+    if (!apiUrl) {
+      console.warn("NEXT_PUBLIC_STRAPI_API_URL is undefined. Skipping static generation.");
+      return [];
+    }
+    
+    const res = await fetch(`${apiUrl}/api/city-landings?locale=all&fields[0]=slug&fields[1]=locale`, {
       next: { revalidate: 86400 }
     });
     
