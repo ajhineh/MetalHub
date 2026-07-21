@@ -46,28 +46,38 @@ interface PageProps {
 
 // Strict Validation Patterns
 const phoneRegex = /^\+?[0-9\s\-\(\)]{7,20}$/;
-const zipRegex = /^[A-Za-z0-9\s\-]{3,10}$/; // Only alphanumeric European/international zip codes (blocks Persian/Arabic characters like 'نتانتا')
+const zipRegex = /^[A-Za-z0-9\s\-]{3,10}$/; // Only alphanumeric postal codes (blocks Persian/Arabic characters like 'نتانتا')
 
-// Language-Aware Gibberish & Noise Detector
+// Language-Aware Gibberish & Keyboard Noise Detector
 function isGibberishText(text?: string): boolean {
   if (!text || text.trim().length === 0) return false;
   const cleaned = text.trim();
   
-  // 1. Extreme repeating single character (e.g. "aaaaa", "11111")
-  const hasExtremeCharRepetition = /(.)\1{4,}/.test(cleaned);
+  // 1. Extreme char repetition e.g. "aaaaa", "11111", "hhhhh"
+  if (/(.)\1{4,}/.test(cleaned)) return true;
   
-  // 2. Alternating pattern noise (e.g. "vvhvhghghgh", "ghghfhgfhgf", "abcabcabc")
-  const hasAlternatingNoise = /(..+?)\1{3,}/i.test(cleaned);
+  // 2. Alternating pattern noise e.g. "vvhvhghghgh", "ghghfhgfhgf", "abcabcabc"
+  if (/(..+?)\1{2,}/i.test(cleaned)) return true;
   
   // 3. Single long word without spaces
-  const isSingleLongWordWithoutSpace = cleaned.length > 25 && !cleaned.includes(' ');
+  if (cleaned.length > 20 && !cleaned.includes(' ')) return true;
   
-  // 4. Repeated identical words
-  const words = cleaned.split(/\s+/);
-  const uniqueWords = new Set(words);
-  const isRepetitiveWords = words.length > 3 && uniqueWords.size === 1;
+  // 4. Keyboard row mashing patterns e.g. "asdfghjkl", "qwertyuiop", "zxcvbnm", "شسیبلاتن"
+  const keyboardPatterns = /asdf|qwerty|zxcv|dfgh|fghj|ghjk|hjkl|yuiop|sdfg|xcvb|cvbn|vbnm|شسیب|ایبت|تنمک/i;
+  if (cleaned.length >= 5 && keyboardPatterns.test(cleaned)) return true;
 
-  return hasExtremeCharRepetition || hasAlternatingNoise || isSingleLongWordWithoutSpace || isRepetitiveWords;
+  // 5. Consonant/Vowel ratio anomaly for Latin text (e.g. "ghghfhgfhgf" has 0 vowels -> Gibberish!)
+  const words = cleaned.split(/\s+/);
+  for (const word of words) {
+    if (word.length >= 5 && /^[a-zA-Z]+$/.test(word)) {
+      const vowels = word.match(/[aeiouy]/gi);
+      const vowelCount = vowels ? vowels.length : 0;
+      const ratio = vowelCount / word.length;
+      if (ratio < 0.15 || ratio > 0.85) return true;
+    }
+  }
+
+  return false;
 }
 
 // Zod Validation Schema
@@ -80,9 +90,9 @@ const rfqSchema = z.object({
   finishing: z.string(),
   tolerance: z.string(),
   quantity: z.number().min(1, { message: 'Quantity must be at least 1 unit.' }),
-  zipCode: z.string().regex(zipRegex, { message: 'Invalid zip/postal code format. Use valid alphanumeric postal codes (e.g. 69001, SW1A 1AA).' }),
+  zipCode: z.string().regex(zipRegex, { message: 'Invalid zip/postal code format. Use valid postal codes (e.g. 69001, SW1A 1AA).' }),
   notes: z.string().optional().refine((val) => !isGibberishText(val), {
-    message: 'Special instructions appear to contain random or repetitive characters. Please provide valid technical notes.'
+    message: 'Special instructions contain meaningless keyboard noise or random text. Please describe technical requirements.'
   })
 });
 
@@ -147,7 +157,7 @@ export default function RfqPage({ params }: PageProps) {
       : 'Your technical dossier has been binary-verified, encrypted, and dispatched to our engineering center. An official quotation will be issued within 24-48 hours.',
     silentMentor: isFr ? 'MENTOR SILENCIEUX' : 'SILENT MENTOR',
     dynamicAdvice: isFr ? 'Recommandations en temps réel' : 'Real-time AI Guidance',
-    toastValidation: isFr ? 'Veuillez corriger les erreurs de validation.' : 'Please correct validation errors in the highlighted fields.',
+    toastValidation: isFr ? 'Veuillez corriger les erreurs de validation.' : 'Please correct validation errors in highlighted fields.',
     shareTitle: isFr ? 'Archivage & Partage' : 'Archive & Share Summary',
     copyLink: isFr ? 'Copier le résumé' : 'Copy Summary Link',
     printPdf: isFr ? 'Imprimer / Sauvegarder PDF' : 'Print / Save PDF Report',
@@ -155,8 +165,8 @@ export default function RfqPage({ params }: PageProps) {
     accountOptionGuest: isFr ? 'Continuer en tant qu\'Invité' : 'Submit as Verified Guest',
     accountOptionLogin: isFr ? 'Se connecter / Créer un compte' : 'Sign In / Register Account',
     guestNotice: isFr 
-      ? 'Note : L\'envoi en invité enregistre votre adresse IP. Pour soumettre plusieurs demandes sans restriction, veuillez créer un compte.' 
-      : 'Notice: Guest submissions log your IP address. Signing in unlocks unlimited dashboard tracking.'
+      ? 'Note : L\'envoi en invité enregistre votre adresse IP. Limite : 1 demande par IP/session.' 
+      : 'Notice: Guest submissions log your IP address. Limit: 1 request per IP/session per 24h.'
   };
 
   const [step, setStep] = useState(1);
@@ -204,6 +214,9 @@ export default function RfqPage({ params }: PageProps) {
   const watchedNotes = watch('notes');
   const watchedZipCode = watch('zipCode');
 
+  // Live Gibberish detector check
+  const isNotesGibberish = isGibberishText(watchedNotes);
+
   // Trigger guidance fetch & AI gibberish detector whenever form values change
   useEffect(() => {
     async function fetchGuidance() {
@@ -220,13 +233,13 @@ export default function RfqPage({ params }: PageProps) {
           let items = data.guidanceItems || [];
 
           // AI Gibberish detector injection into Guidance UI
-          if (watchedNotes && isGibberishText(watchedNotes)) {
+          if (isNotesGibberish) {
             items = [
               {
                 id: 'gibberish-notes',
                 severity: 'HIGH',
-                message: 'Special instructions contain repetitive or random text patterns. Please enter valid technical requirements.',
-                actionableSteps: ['Clear placeholder characters and specify manufacturing notes.'],
+                message: 'Special instructions contain meaningless keyboard noise or random patterns. Please provide clear manufacturing requirements.',
+                actionableSteps: ['Clear random characters and specify valid engineering instructions.'],
                 evidenceLinks: []
               },
               ...items
@@ -238,8 +251,8 @@ export default function RfqPage({ params }: PageProps) {
               {
                 id: 'invalid-zip',
                 severity: 'HIGH',
-                message: 'Zip code contains invalid characters. Use valid postal codes (e.g. 69001).',
-                actionableSteps: ['Correct the postal code format.'],
+                message: 'Postal code contains invalid non-alphanumeric characters. Please enter a valid postal code (e.g. 69001).',
+                actionableSteps: ['Correct the delivery zip code format.'],
                 evidenceLinks: []
               },
               ...items
@@ -253,7 +266,7 @@ export default function RfqPage({ params }: PageProps) {
       }
     }
     fetchGuidance();
-  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity, watchedNotes, watchedZipCode]);
+  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity, watchedNotes, watchedZipCode, isNotesGibberish]);
 
   // Toast Helper
   const addToast = (msg: string) => {
@@ -278,18 +291,32 @@ export default function RfqPage({ params }: PageProps) {
       }
       isValid = true;
     } else if (step === 4) {
+      if (isNotesGibberish) {
+        addToast('⚠️ Special instructions contain keyboard noise. Please fix before proceeding.');
+        return;
+      }
       isValid = await trigger(['quantity', 'zipCode', 'notes']);
     }
 
     if (isValid) {
-      setStep(prev => prev + 1);
+      setStep(prev => Math.min(prev + 1, 5));
     } else {
       addToast(t.toastValidation);
     }
   };
 
-  const prevStep = () => setStep(prev => prev - 1);
+  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
   const goToStep = (targetStep: number) => setStep(targetStep);
+
+  // Prevent Enter key in text fields from submitting the form accidentally
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (step < 5) {
+        nextStep();
+      }
+    }
+  };
 
   // Drag & drop logic
   const handleDragOver = (e: React.DragEvent) => {
@@ -420,8 +447,34 @@ export default function RfqPage({ params }: PageProps) {
     setVerifiedFiles(prev => prev.filter((_, idx) => idx !== index));
   };
 
-  const onSubmitFinal = async (data: RfqFormData) => {
-    if (verifiedFiles.length === 0) return;
+  // Form submission handler ONLY permitted on Step 5
+  const onSubmitFinal = async (data: RfqFormData, e?: React.BaseSyntheticEvent) => {
+    if (e) e.preventDefault();
+
+    // STRICT STEP CHECK: Never submit unless user is on Step 5!
+    if (step !== 5) {
+      return;
+    }
+
+    if (verifiedFiles.length === 0) {
+      addToast('Please upload at least one valid drawing file.');
+      return;
+    }
+
+    if (isNotesGibberish) {
+      addToast('⚠️ Notes contain keyboard noise. Please correct notes before submitting.');
+      return;
+    }
+
+    // Persistent Anti-Spam Rate Limit Check for Guests
+    if (accountMode === 'guest' && typeof window !== 'undefined') {
+      const lastGuestSub = localStorage.getItem('metalhub_guest_rfq_time');
+      if (lastGuestSub && (Date.now() - Number(lastGuestSub) < 24 * 60 * 60 * 1000)) {
+        addToast(isFr ? 'Limite d\'invité atteinte pour cette session/IP. Veuillez vous connecter.' : 'Guest submission limit reached for this session/IP. Please sign in or create an account.');
+        setShowLoginModal(true);
+        return;
+      }
+    }
 
     setSubmitting(true);
     setStatusMessage(t.processing);
@@ -446,7 +499,6 @@ export default function RfqPage({ params }: PageProps) {
       const responseData = await completeRes.json();
 
       if (completeRes.status === 429 || responseData.rateLimited) {
-        // IP rate limited for guest submissions
         addToast(responseData.message || 'Guest submission limit reached for your IP.');
         setShowLoginModal(true);
         setSubmitting(false);
@@ -454,6 +506,11 @@ export default function RfqPage({ params }: PageProps) {
       }
 
       if (completeRes.ok && responseData.success) {
+        // Record client guest timestamp
+        if (accountMode === 'guest' && typeof window !== 'undefined') {
+          localStorage.setItem('metalhub_guest_rfq_time', String(Date.now()));
+        }
+
         setRfqRefId(generatedId);
         setSubmitted(true);
       } else {
@@ -623,8 +680,8 @@ export default function RfqPage({ params }: PageProps) {
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '1.5rem' }}>
               {isFr 
-                ? 'Plusieurs demandes d\'invité ont été détectées depuis votre adresse IP. Veuillez vous connecter ou créer un compte pour continuer.'
-                : 'Multiple guest RFQ submissions detected from your IP address. Please sign in or create a free MetalHub account to submit additional requests.'}
+                ? 'Plusieurs demandes d\'invité ont été détectées depuis votre session/adresse IP. Veuillez vous connecter ou créer un compte pour continuer.'
+                : 'Multiple guest RFQ submissions detected from your session/IP address. Please sign in or create a free MetalHub account to submit additional requests.'}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button 
@@ -699,6 +756,7 @@ export default function RfqPage({ params }: PageProps) {
                       className="form-input" 
                       placeholder="e.g. Alstom SAS" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('companyName')}
                     />
                     {errors.companyName && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.companyName.message}</p>}
@@ -713,6 +771,7 @@ export default function RfqPage({ params }: PageProps) {
                       className="form-input" 
                       placeholder="e.g. Jean Dupont" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('contactName')}
                     />
                     {errors.contactName && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.contactName.message}</p>}
@@ -727,6 +786,7 @@ export default function RfqPage({ params }: PageProps) {
                       className="form-input" 
                       placeholder="e.g. j.dupont@alstom.com" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('email')}
                     />
                     {errors.email && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.email.message}</p>}
@@ -741,6 +801,7 @@ export default function RfqPage({ params }: PageProps) {
                       className="form-input" 
                       placeholder="e.g. +33 6 1234 5678" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('phone')}
                     />
                     {errors.phone && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.phone.message}</p>}
@@ -902,6 +963,7 @@ export default function RfqPage({ params }: PageProps) {
                       min="1" 
                       className="form-input" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('quantity', { valueAsNumber: true })}
                     />
                     {errors.quantity && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.quantity.message}</p>}
@@ -916,6 +978,7 @@ export default function RfqPage({ params }: PageProps) {
                       className="form-input" 
                       placeholder="e.g. 69001 (Lyon)" 
                       aria-required="true"
+                      onKeyDown={handleKeyDown}
                       {...register('zipCode')}
                     />
                     {errors.zipCode && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.zipCode.message}</p>}
@@ -930,7 +993,14 @@ export default function RfqPage({ params }: PageProps) {
                       placeholder="e.g. Weld certifications required, hot-dip zinc coating..." 
                       {...register('notes')}
                     />
-                    {errors.notes && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.notes.message}</p>}
+                    {isNotesGibberish && (
+                      <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.35rem', fontWeight: '600' }}>
+                        ⚠️ Keyboard mashing or meaningless text detected. Please describe valid manufacturing requirements.
+                      </p>
+                    )}
+                    {errors.notes && !isNotesGibberish && (
+                      <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.notes.message}</p>
+                    )}
                   </div>
                 </div>
               )}

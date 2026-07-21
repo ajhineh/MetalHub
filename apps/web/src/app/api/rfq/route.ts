@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Simple in-memory IP tracking store for Guest anti-spam rate limiting
+// Global in-memory IP tracking store
 const guestIpStore = new Map<string, { count: number; lastSubmission: number }>();
 
 export async function PUT(request: NextRequest) {
@@ -24,12 +24,11 @@ export async function PUT(request: NextRequest) {
       isAuthenticated = false 
     } = payload;
 
-    // Get client IP address for anti-spam rate limiting
+    // Extract client IP
     const forwardedFor = request.headers.get('x-forwarded-for');
     const realIp = request.headers.get('x-real-ip');
-    const clientIp = (forwardedFor ? forwardedFor.split(',')[0] : realIp) || '127.0.0.1';
+    const clientIp = (forwardedFor ? forwardedFor.split(',')[0].trim() : realIp) || '127.0.0.1';
 
-    // Fallback for filename or array of filenames
     const fileNameToUse = filename || (Array.isArray(filenames) && filenames[0]) || 'technical-drawing.pdf';
     const s3KeyToUse = s3Key || `drawings/${Date.now()}-${fileNameToUse}`;
 
@@ -37,37 +36,31 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: 'Missing required contact parameter: email.' }, { status: 400 });
     }
 
-    // Guest IP Anti-Spam Rate Limiting Check
+    // Strict Anti-Spam Rate Limiting for Unauthenticated Guests (1 submission per 24h)
     if (isGuest && !isAuthenticated) {
       const now = Date.now();
       const ipRecord = guestIpStore.get(clientIp);
 
       if (ipRecord) {
-        // Reset counter if more than 24 hours have passed
+        // Reset if 24h passed
         if (now - ipRecord.lastSubmission > 24 * 60 * 60 * 1000) {
           guestIpStore.set(clientIp, { count: 1, lastSubmission: now });
-        } else if (ipRecord.count >= 2) {
-          // IP submission limit reached for unauthenticated guests
+        } else {
+          // Block subsequent guest submissions from this IP
           return NextResponse.json({
             success: false,
             rateLimited: true,
-            message: `Guest rate limit reached for IP ${clientIp}. Please sign in to your MetalHub account to submit additional RFQs.`
+            message: `Guest rate limit exceeded for IP address ${clientIp}. Multiple unauthenticated submissions are restricted to prevent spam. Please sign in to submit additional RFQs.`
           }, { status: 429 });
-        } else {
-          ipRecord.count += 1;
-          ipRecord.lastSubmission = now;
         }
       } else {
         guestIpStore.set(clientIp, { count: 1, lastSubmission: now });
       }
     }
 
-    // Generate pre-signed download link
     const bucketName = process.env.AWS_S3_BUCKET || 'SideroHub-drawings';
-    const s3Region = process.env.AWS_REGION || 'eu-west-1';
-    const downloadUrl = `https://${bucketName}.s3.${s3Region}.amazonaws.com/${s3KeyToUse}?Expires=${Math.floor(Date.now() / 1000) + 7200}`;
+    const downloadUrl = `https://${bucketName}.s3.amazonaws.com/${s3KeyToUse}`;
 
-    // CRM Webhook Payload
     const crmPayload = {
       deal: {
         title: `RFQ - ${companyName || 'Guest'} (${quantity} units)`,
