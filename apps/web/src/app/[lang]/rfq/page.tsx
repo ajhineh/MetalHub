@@ -32,8 +32,9 @@ import {
   Phone,
   Layers,
   MapPin,
-  FileImage,
-  FileSpreadsheet
+  Lock,
+  UserCheck,
+  LogIn
 } from 'lucide-react';
 import styles from './rfq.module.css';
 
@@ -43,19 +44,30 @@ interface PageProps {
   }>;
 }
 
-// Strict Phone & Gibberish Validation Helpers
+// Strict Validation Patterns
 const phoneRegex = /^\+?[0-9\s\-\(\)]{7,20}$/;
+const zipRegex = /^[A-Za-z0-9\s\-]{3,10}$/; // Only alphanumeric European/international zip codes (blocks Persian/Arabic characters like 'نتانتا')
 
+// Language-Aware Gibberish & Noise Detector
 function isGibberishText(text?: string): boolean {
   if (!text || text.trim().length === 0) return false;
   const cleaned = text.trim();
-  // Check for repeated character patterns e.g. "نانانان" or "asdfasdf" or "11111"
+  
+  // 1. Extreme repeating single character (e.g. "aaaaa", "11111")
   const hasExtremeCharRepetition = /(.)\1{4,}/.test(cleaned);
+  
+  // 2. Alternating pattern noise (e.g. "vvhvhghghgh", "ghghfhgfhgf", "abcabcabc")
+  const hasAlternatingNoise = /(..+?)\1{3,}/i.test(cleaned);
+  
+  // 3. Single long word without spaces
+  const isSingleLongWordWithoutSpace = cleaned.length > 25 && !cleaned.includes(' ');
+  
+  // 4. Repeated identical words
   const words = cleaned.split(/\s+/);
   const uniqueWords = new Set(words);
   const isRepetitiveWords = words.length > 3 && uniqueWords.size === 1;
-  const isSingleLongWordWithoutSpace = cleaned.length > 25 && !cleaned.includes(' ');
-  return hasExtremeCharRepetition || isRepetitiveWords || isSingleLongWordWithoutSpace;
+
+  return hasExtremeCharRepetition || hasAlternatingNoise || isSingleLongWordWithoutSpace || isRepetitiveWords;
 }
 
 // Zod Validation Schema
@@ -63,14 +75,14 @@ const rfqSchema = z.object({
   companyName: z.string().min(2, { message: 'Company name must be at least 2 characters.' }),
   contactName: z.string().min(2, { message: 'Contact name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid business email address.' }),
-  phone: z.string().regex(phoneRegex, { message: 'Invalid phone format. Only numbers, spaces, +, -, () are allowed (min 7 digits).' }),
+  phone: z.string().regex(phoneRegex, { message: 'Invalid phone format. Use numbers, spaces, +, -, () (min 7 digits).' }),
   steelGrade: z.string(),
   finishing: z.string(),
   tolerance: z.string(),
   quantity: z.number().min(1, { message: 'Quantity must be at least 1 unit.' }),
-  zipCode: z.string().min(3, { message: 'Please enter a valid delivery zip code.' }),
+  zipCode: z.string().regex(zipRegex, { message: 'Invalid zip/postal code format. Use valid alphanumeric postal codes (e.g. 69001, SW1A 1AA).' }),
   notes: z.string().optional().refine((val) => !isGibberishText(val), {
-    message: 'Special instructions appear to contain random or repetitive characters. Please provide meaningful notes.'
+    message: 'Special instructions appear to contain random or repetitive characters. Please provide valid technical notes.'
   })
 });
 
@@ -139,7 +151,12 @@ export default function RfqPage({ params }: PageProps) {
     shareTitle: isFr ? 'Archivage & Partage' : 'Archive & Share Summary',
     copyLink: isFr ? 'Copier le résumé' : 'Copy Summary Link',
     printPdf: isFr ? 'Imprimer / Sauvegarder PDF' : 'Print / Save PDF Report',
-    linkCopied: isFr ? 'Lien du résumé copié !' : 'Summary link copied to clipboard!'
+    linkCopied: isFr ? 'Lien du résumé copié !' : 'Summary link copied to clipboard!',
+    accountOptionGuest: isFr ? 'Continuer en tant qu\'Invité' : 'Submit as Verified Guest',
+    accountOptionLogin: isFr ? 'Se connecter / Créer un compte' : 'Sign In / Register Account',
+    guestNotice: isFr 
+      ? 'Note : L\'envoi en invité enregistre votre adresse IP. Pour soumettre plusieurs demandes sans restriction, veuillez créer un compte.' 
+      : 'Notice: Guest submissions log your IP address. Signing in unlocks unlimited dashboard tracking.'
   };
 
   const [step, setStep] = useState(1);
@@ -152,6 +169,8 @@ export default function RfqPage({ params }: PageProps) {
   const [submitted, setSubmitted] = useState(false);
   const [rfqRefId, setRfqRefId] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [accountMode, setAccountMode] = useState<'guest' | 'login'>('guest');
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -183,6 +202,7 @@ export default function RfqPage({ params }: PageProps) {
   const watchedTolerance = watch('tolerance');
   const watchedQuantity = watch('quantity');
   const watchedNotes = watch('notes');
+  const watchedZipCode = watch('zipCode');
 
   // Trigger guidance fetch & AI gibberish detector whenever form values change
   useEffect(() => {
@@ -205,8 +225,21 @@ export default function RfqPage({ params }: PageProps) {
               {
                 id: 'gibberish-notes',
                 severity: 'HIGH',
-                message: 'Special instructions contain repetitive or random text patterns. Please enter detailed technical requirements.',
+                message: 'Special instructions contain repetitive or random text patterns. Please enter valid technical requirements.',
                 actionableSteps: ['Clear placeholder characters and specify manufacturing notes.'],
+                evidenceLinks: []
+              },
+              ...items
+            ];
+          }
+
+          if (watchedZipCode && !zipRegex.test(watchedZipCode)) {
+            items = [
+              {
+                id: 'invalid-zip',
+                severity: 'HIGH',
+                message: 'Zip code contains invalid characters. Use valid postal codes (e.g. 69001).',
+                actionableSteps: ['Correct the postal code format.'],
                 evidenceLinks: []
               },
               ...items
@@ -220,7 +253,7 @@ export default function RfqPage({ params }: PageProps) {
       }
     }
     fetchGuidance();
-  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity, watchedNotes]);
+  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity, watchedNotes, watchedZipCode]);
 
   // Toast Helper
   const addToast = (msg: string) => {
@@ -396,7 +429,7 @@ export default function RfqPage({ params }: PageProps) {
     try {
       const generatedId = `RFQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // Complete Submission via API Route
+      // Complete Submission via API Route with Guest & IP anti-spam tracking
       const completeRes = await fetch('/api/rfq', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -404,17 +437,29 @@ export default function RfqPage({ params }: PageProps) {
           ...data,
           rfqId: generatedId,
           filenames: verifiedFiles.map(vf => vf.file.name),
-          s3Key: `drawings/${generatedId}/${verifiedFiles[0].file.name}`
+          s3Key: `drawings/${generatedId}/${verifiedFiles[0].file.name}`,
+          isGuest: accountMode === 'guest',
+          isAuthenticated: accountMode === 'login'
         })
       });
 
-      if (completeRes.ok) {
+      const responseData = await completeRes.json();
+
+      if (completeRes.status === 429 || responseData.rateLimited) {
+        // IP rate limited for guest submissions
+        addToast(responseData.message || 'Guest submission limit reached for your IP.');
+        setShowLoginModal(true);
+        setSubmitting(false);
+        return;
+      }
+
+      if (completeRes.ok && responseData.success) {
         setRfqRefId(generatedId);
         setSubmitted(true);
       } else {
-        addToast(isFr ? 'Erreur lors de l\'enregistrement.' : 'Failed to register lead in database.');
+        addToast(responseData.message || 'Failed to register RFQ in database.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       addToast(isFr ? 'Erreur de connexion.' : 'Network error connecting to API.');
     } finally {
@@ -565,6 +610,41 @@ export default function RfqPage({ params }: PageProps) {
           </div>
         ))}
       </div>
+
+      {/* Login Prompt Modal for IP Rate-Limited Guests */}
+      {showLoginModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ maxWidth: '420px', width: '100%', padding: '2rem', backgroundColor: '#0b0e14', border: '1px solid var(--color-steel-border)', borderRadius: '14px', textAlign: 'center' }}>
+            <div style={{ color: '#ef4444', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+              <Lock className="w-12 h-12 text-rose-500" />
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.5rem' }}>
+              {isFr ? 'Limite d\'invité atteinte' : 'Guest Rate Limit Reached'}
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+              {isFr 
+                ? 'Plusieurs demandes d\'invité ont été détectées depuis votre adresse IP. Veuillez vous connecter ou créer un compte pour continuer.'
+                : 'Multiple guest RFQ submissions detected from your IP address. Please sign in or create a free MetalHub account to submit additional requests.'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button 
+                onClick={() => { setShowLoginModal(false); setAccountMode('login'); }}
+                className="hover:bg-cyan-300 text-slate-950 font-bold transition-all"
+                style={{ padding: '0.6rem 1rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
+              >
+                {t.accountOptionLogin}
+              </button>
+              <button 
+                onClick={() => setShowLoginModal(false)}
+                className="hover:bg-white/10 text-white font-semibold transition-all"
+                style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-steel-border)', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                {isFr ? 'Fermer' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '30px', alignItems: 'start' }}>
         
@@ -858,9 +938,62 @@ export default function RfqPage({ params }: PageProps) {
               {/* Step 5: Review & Confirmation Summary Screen before Final Submission */}
               {step === 5 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  <div style={{ padding: '1rem', backgroundColor: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '8px', color: '#22d3ee', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Info className="w-4 h-4" />
-                    <span>{isFr ? 'Vérifiez les informations avant l\'envoi final.' : 'Review your dossier summary carefully before final transmission.'}</span>
+                  
+                  {/* Account Mode Selector Toggle (Guest vs Login) */}
+                  <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', borderRadius: '10px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', display: 'block', marginBottom: '0.75rem' }}>
+                      Account & Access Option
+                    </span>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <button 
+                        type="button"
+                        onClick={() => setAccountMode('guest')}
+                        style={{
+                          padding: '0.6rem 0.8rem',
+                          borderRadius: '8px',
+                          border: `1px solid ${accountMode === 'guest' ? '#22d3ee' : 'var(--color-steel-border)'}`,
+                          backgroundColor: accountMode === 'guest' ? 'rgba(6,182,212,0.1)' : 'transparent',
+                          color: accountMode === 'guest' ? '#22d3ee' : 'var(--text-muted)',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem'
+                        }}
+                      >
+                        <UserCheck className="w-4 h-4" />
+                        <span>{t.accountOptionGuest}</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        onClick={() => { setAccountMode('login'); setShowLoginModal(true); }}
+                        style={{
+                          padding: '0.6rem 0.8rem',
+                          borderRadius: '8px',
+                          border: `1px solid ${accountMode === 'login' ? '#22d3ee' : 'var(--color-steel-border)'}`,
+                          backgroundColor: accountMode === 'login' ? 'rgba(6,182,212,0.1)' : 'transparent',
+                          color: accountMode === 'login' ? '#22d3ee' : 'var(--text-muted)',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem'
+                        }}
+                      >
+                        <LogIn className="w-4 h-4" />
+                        <span>{t.accountOptionLogin}</span>
+                      </button>
+                    </div>
+                    
+                    <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.6rem', margin: '0.6rem 0 0 0' }}>
+                      {t.guestNotice}
+                    </p>
                   </div>
 
                   {/* Summary Breakdown Grid */}
