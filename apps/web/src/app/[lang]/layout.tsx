@@ -3,6 +3,7 @@ import '../globals.css';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
+import Script from 'next/script';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -83,7 +84,7 @@ export default async function LangLayout({ children, params }: LayoutProps) {
         `}} />
 
         {/* Client-Side IP Geolocation Fallback */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <Script id="geoip-redirect" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
           (function() {
             var locales = ['en', 'fr', 'de', 'nl', 'es', 'it', 'no', 'sv', 'pl'];
             

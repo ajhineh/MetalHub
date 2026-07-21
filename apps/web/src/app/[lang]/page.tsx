@@ -1,575 +1,738 @@
-import Link from 'next/link';
+"use client";
+
+import React, { useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import {
+  Network,
+  ShoppingBag,
+  Clock,
+  ShieldCheck,
+  TrendingUp,
+  Route,
+  Info,
+  AlertTriangle,
+  ChevronRight,
+  MoreHorizontal
+} from 'lucide-react';
 
 interface PageProps {
-  params: Promise<{
-    lang: string;
-  }>;
+  params: Promise<{ lang: string }>;
 }
 
-export default async function HomePage({ params }: PageProps) {
-  const resolvedParams = await params;
-  const lang = resolvedParams.lang;
-  const isFr = lang === 'fr';
+export default function PerfectIndustrialLandingPage({ params }: PageProps) {
+  const resolvedParams = React.use(params);
+  const [hoveredPanel, setHoveredPanel] = useState<'left' | 'right' | null>(null);
+
+  // Parallax Background Scroll effect
+  const { scrollY } = useScroll();
+  const backgroundY = useTransform(scrollY, [0, 1000], ['0%', '15%']);
+
+  // Active Orders Bar Chart values
+  const activeOrdersBars = [15, 28, 42, 20, 55, 38, 70, 62, 50, 78, 65, 58, 85, 45, 60, 75, 40, 90, 52, 80];
+
+  // Lead Times Bar Chart values
+  const leadTimesBars = [22, 22, 22, 60, 32, 48, 60, 70, 48, 68];
+
+  const lang = resolvedParams?.lang || 'en';
 
   const translations: Record<string, Record<string, string>> = {
     en: {
-      heroTitle: 'Your European Partner for Precision Steel Structures',
-      heroSub: 'Agile supply chain management: engineering study center, certified standard raw materials sourcing, and local fabrication by specialized welding workshops in France.',
-      ctaRfq: 'Request a Quote (RFQ)',
-      ctaProjects: 'Browse Case Studies',
-      metric1Lbl: 'Quote Turnaround',
-      metric2Lbl: 'Execution Standards',
-      metric3Lbl: 'Reinvested Profit Tax (EE)',
-      activitiesTitle: 'Our Activities & Sector Expertise',
-      activitiesSubtitle: 'Engineering and fabrication solutions tailored to the strict requirements of European infrastructure.',
-      act1Title: 'Industrial Chassis & Frames',
-      act1Desc: 'Design and fabrication of heavy machine bases and high-precision welded chassis frames.',
-      act1Btn: 'Explore More',
-      act2Title: 'Steel Bridges & Truss Structures',
-      act2Desc: 'Project management of heavy structural framing and steel truss crossing structures.',
-      act3Title: 'High-Altitude Access & Industry',
-      act3Desc: 'Suspended walkways, complex maintenance platforms, and secure steel access structures.',
-      act4Title: 'Engineering & NDT Inspection',
-      act4Desc: '3D modeling, Eurocode 3 structural calculations, and technical site inspections.',
-      valueTitle: 'Why SideroHub?',
-      v1Title: 'Precision Engineering',
-      v1Desc: 'Advanced 3D modeling (Tekla/CAD) and structural design calculations processed by our centralized engineering hub.',
-      v2Title: 'Certified Materials Sourcing',
-      v2Desc: 'Direct procurement of raw sections and sheets (S235JR, S355J2+N with 3.1 certificates) from major European steel mills.',
-      v3Title: 'Local Workshop Networks',
-      v3Desc: 'Certified ISO 3834 fabrication, laser-cutting, and welding outsourced to local French workshops for minimum transit fees.',
-      mapTitle: 'European Logistic Network',
-      mapSub: 'Managed under Estonian corporate framework, we coordinate logistics and contracts across Europe with complete regulatory compliance.'
+      title: 'Industrial Intelligence & Engineering Systems',
+      subtitle: 'Connecting verified European steel suppliers to elevate product quality, engineering standards, and enterprise management.',
+      getStarted: 'Get Started',
+      activeSupplyChains: 'ACTIVE SUPPLY CHAINS',
+      guidanceEngine: 'GUIDANCE ENGINE',
+      realTimeNetwork: 'Real-time Network',
+      suppliersVal: '342 Suppliers',
+      activeOrders: 'Active Orders',
+      tonsVal: '1,150 tons',
+      leadTimes: 'Lead Times',
+      leadTimesVal: 'Avg. 14 Days',
+      qualityCompliance: 'Quality Compliance',
+      qualityVal: '99.8% Certified',
+      demandForecasting: 'Demand Forecasting',
+      accuracyVal: '94% Accuracy',
+      routeOptimization: 'Route Optimization',
+      savingsVal: '18% Savings',
+      regulatorySupport: 'Regulatory Support',
+      regulationVal: 'EU EN 10025',
+      riskAssessment: 'Risk Assessment',
+      riskVal: 'Low Dispute Rate',
+      regulationLabel: 'Regulation',
+      savingsLabel: 'Savings',
+      regionLabel: 'Europe',
+      engineLabel: 'Engine'
     },
     fr: {
-      heroTitle: 'Votre Partenaire Européen de Structures Métalliques',
-      heroSub: 'Études d\'ingénierie avancées en direct, sourcing matières premières certifiées et fabrication locale par des ateliers de soudure de proximité en France.',
-      ctaRfq: 'Demander un devis (RFQ)',
-      ctaProjects: 'Voir nos projets',
-      metric1Lbl: 'Délai d\'estimation',
-      metric2Lbl: 'Norme d\'Exécution (EXC1-EXC3)',
-      metric3Lbl: 'Impôt sur bénéfice réinvesti (Estonie)',
-      activitiesTitle: 'Nos Activités & Domaines d\'Intervention',
-      activitiesSubtitle: 'Des solutions d\'ingénierie et de fabrication adaptées aux exigences des infrastructures européennes.',
-      act1Title: 'Châssis & Bâtis Industriels',
-      act1Desc: 'Conception et fabrication de bâtis machines lourds et châssis mécano-soudés de haute précision.',
-      act1Btn: 'En savoir +',
-      act2Title: 'Ouvrages d\'Art & Ponts',
-      act2Desc: 'Gestion de projets de charpentes lourdes et structures de franchissement métallique en treillis.',
-      act3Title: 'Accès Industriels Haute Sécurité',
-      act3Desc: 'Passerelles suspendues, plateformes de maintenance complexes et structures métalliques d\'accès sécurisé.',
-      act4Title: 'Ingénierie & Inspection CND',
-      act4Desc: 'Modélisation 3D, calculs de structures Eurocode 3 et inspections techniques sur site.',
-      valueTitle: 'Pourquoi choisir SideroHub ?',
-      v1Title: 'Ingénierie Rigoureuse',
-      v1Desc: 'Modélisation 3D avancée (Tekla/CAD) et notes de calculs structurels exécutées par notre bureau d\'études central.',
-      v2Title: 'Sourcing Tracé',
-      v2Desc: 'Approvisionnement direct auprès des grands aciéristes européens (aciers S235JR, S355J2+N avec certificats 3.1).',
-      v3Title: 'Fabrication Locale',
-      v3Desc: 'Découpe laser, pliage et soudage certifiés ISO 3834 confiés à des ateliers locaux en France pour éliminer les frais de transport.',
-      mapTitle: 'Réseau Logistique Européen',
-      mapSub: 'Grâce à notre siège administratif en Estonie, nous gérons vos projets partout en Europe avec une sécurité juridique et bancaire absolue.'
+      title: 'Systèmes d\'Ingénierie & Intelligence Industrielle',
+      subtitle: 'Connecter les fournisseurs d\'acier européens certifiés pour élever la qualité des produits, les normes d\'ingénierie et la gestion d\'entreprise.',
+      getStarted: 'Commencer',
+      activeSupplyChains: 'CHAÎNES D\'APPROVISIONNEMENT',
+      guidanceEngine: 'MOTEUR DE GUIDAGE',
+      realTimeNetwork: 'Réseau en temps réel',
+      suppliersVal: '342 Fournisseurs',
+      activeOrders: 'Commandes Actives',
+      tonsVal: '1 150 tonnes',
+      leadTimes: 'Délais de livraison',
+      leadTimesVal: 'Moy. 14 Jours',
+      qualityCompliance: 'Conformité Qualité',
+      qualityVal: 'Certifié à 99.8%',
+      demandForecasting: 'Prévisions de Demande',
+      accuracyVal: 'Précision de 94%',
+      routeOptimization: 'Optimisation d\'Itinéraire',
+      savingsVal: '18% d\'Économies',
+      regulatorySupport: 'Support Réglementaire',
+      regulationVal: 'UE EN 10025',
+      riskAssessment: 'Évaluation des Risques',
+      riskVal: 'Faible taux de litige',
+      regulationLabel: 'Réglementation',
+      savingsLabel: 'Économies',
+      regionLabel: 'Europe',
+      engineLabel: 'Moteur'
     },
     de: {
-      heroTitle: 'Ihr europäischer Partner für Präzisionsstahlkonstruktionen',
-      heroSub: 'Agiles Supply-Chain-Management: Engineering-Zentrum, Beschaffung zertifizierter Rohstoffe und lokale Fertigung durch qualifizierte Schweißwerkstätten.',
-      ctaRfq: 'Angebot anfordern (RFQ)',
-      ctaProjects: 'Projektbeispiele ansehen',
-      metric1Lbl: 'Angebotslaufzeit',
-      metric2Lbl: 'Ausführungsstandards (EXC1-EXC3)',
-      metric3Lbl: 'Reinvestierte Gewinnsteuer (EE)',
-      activitiesTitle: 'Unsere Aktivitäten & Branchenkompetenz',
-      activitiesSubtitle: 'Technische Planungen und Fertigungslösungen, die den strengen Anforderungen europäischer Infrastruktur entsprechen.',
-      act1Title: 'Industriegestelle & Rahmen',
-      act1Desc: 'Planung und Herstellung schwerer Maschinenbetten und hochpräziser schweißtechnischer Rahmen.',
-      act1Btn: 'Mehr erfahren',
-      act2Title: 'Stahlbrücken & Fachwerke',
-      act2Desc: 'Projektmanagement schwerer Rahmenkonstruktionen und Fachwerk-Stahlbrücken.',
-      act3Title: 'Industrieller Höhenzugang & Sicherheit',
-      act3Desc: 'Hängende Laufstege, komplexe Wartungsplattformen und sichere Zugangssysteme.',
-      act4Title: 'Engineering & ZfP-Prüfung',
-      act4Desc: '3D-Modellierung, Tragwerksberechnungen nach Eurocode 3 und technische Vor-Ort-Inspektionen.',
-      valueTitle: 'Warum SideroHub?',
-      v1Title: 'Präzisions-Engineering',
-      v1Desc: 'Fortgeschrittene 3D-Modellierung (Tekla/CAD) und Tragwerksberechnungen durch unser Engineering-Zentrum.',
-      v2Title: 'Zertifizierter Materialeinkauf',
-      v2Desc: 'Direktbezug von Profilstahl und Blechen (S235JR, S355J2+N mit 3.1-Zertifikat) von führenden europäischen Hütten.',
-      v3Title: 'Lokale Schweißnetzwerke',
-      v3Desc: 'Zertifizierte Fertigung nach ISO 3834, Laserschneiden und Schweißen in regionalen Werkstätten zur Minimierung der Transportkosten.',
-      mapTitle: 'Europäisches Logistiknetzwerk',
-      mapSub: 'Über unsere estnische Unternehmensstruktur steuern wir Logistik und Verträge in ganz Europa unter Einhaltung aller Rechtsvorschriften.'
+      title: 'Industrielle Intelligenz & Engineering-Systeme',
+      subtitle: 'Verbindung verifizierter europäischer Stahllieferanten zur Steigerung der Produktqualität, der Engineering-Standards und der Unternehmensführung.',
+      getStarted: 'Loslegen',
+      activeSupplyChains: 'AKTIVE LIEFERKETTEN',
+      guidanceEngine: 'LEIT-ENGINE',
+      realTimeNetwork: 'Echtzeit-Netzwerk',
+      suppliersVal: '342 Lieferanten',
+      activeOrders: 'Aktive Aufträge',
+      tonsVal: '1.150 Tonnen',
+      leadTimes: 'Lieferzeiten',
+      leadTimesVal: 'Durchschn. 14 Tage',
+      qualityCompliance: 'Qualitätskonformität',
+      qualityVal: '99.8% Zertifiziert',
+      demandForecasting: 'Nachfrageprognose',
+      accuracyVal: '94% Genauigkeit',
+      routeOptimization: 'Routenoptimierung',
+      savingsVal: '18% Ersparnis',
+      regulatorySupport: 'Regulatorische Hilfe',
+      regulationVal: 'EU EN 10025',
+      riskAssessment: 'Risikobewertung',
+      riskVal: 'Geringe Streitquote',
+      regulationLabel: 'Regulierung',
+      savingsLabel: 'Ersparnis',
+      regionLabel: 'Europa',
+      engineLabel: 'Engine'
     },
     nl: {
-      heroTitle: 'Uw Europese partner voor precisie staalconstructies',
-      heroSub: 'Agile supply chain management: engineering studiecentrum, gecertificeerde grondstoffen sourcing, en lokale fabricage door gespecialiseerde laswerkplaatsen.',
-      ctaRfq: 'Offerte aanvragen (RFQ)',
-      ctaProjects: 'Bekijk projecten',
-      metric1Lbl: 'Offerte doorlooptijd',
-      metric2Lbl: 'Uitvoeringsnormen (EXC1-EXC3)',
-      metric3Lbl: 'Belasting op herbelegde winst (EE)',
-      activitiesTitle: 'Onze Activiteiten & Sector Expertise',
-      activitiesSubtitle: 'Engineering- en fabricage-oplossingen op maat voor de strenge eisen van de Europese infrastructuur.',
-      act1Title: 'Industriële Chassis & Frames',
-      act1Desc: 'Ontwerp en fabricage van zware machinebedden en hoogwaardig gelaste frameconstructies.',
-      act1Btn: 'Meer info',
-      act2Title: 'Stalen Bruggen & Vakwerken',
-      act2Desc: 'Projectmanagement van zware staalconstructies en vakwerkbruggen.',
-      act3Title: 'Industriële Toegang & Veiligheid',
-      act3Desc: 'Hangende loopbruggen, complexe onderhoudsplatforms en veilige toegangstrappen.',
-      act4Title: 'Engineering & NDT Inspectie',
-      act4Desc: '3D-modellering, Eurocode 3 sterkteberekeningen en technische kwaliteitscontroles op locatie.',
-      valueTitle: 'Waarom SideroHub?',
-      v1Title: 'Nauwkeurige Engineering',
-      v1Desc: 'Geavanceerde 3D-modellering (Tekla/CAD) en sterkteberekeningen verzorgd door ons centrale engineering center.',
-      v2Title: 'Gecertificeerde Materialen',
-      v2Desc: 'Directe inkoop van profielstaal en platen (S235JR, S355J2+N met 3.1 certificaten) bij gerenommeerde Europese staalfabrieken.',
-      v3Title: 'Lokale Laswerkplaatsen',
-      v3Desc: 'ISO 3834 gecertificeerde fabricage, lasersnijden en laswerk uitbesteed aan lokale werkplaatsen voor minimale transportkosten.',
-      mapTitle: 'Europees Logistiek Netwerk',
-      mapSub: 'Beheerd onder Ests zakelijk kader, coördineren we logistiek en contracten door heel Europa met volledige naleving van de wet.'
+      title: 'Industriële Intelligentie & Engineering Systemen',
+      subtitle: 'Verbinden van geverifieerde Europese staalleveranciers om productkwaliteit, engineeringnormen en bedrijfsbeheer te verhogen.',
+      getStarted: 'Aan de slag',
+      activeSupplyChains: 'ACTIEVE TOELEVERINGSKETENS',
+      guidanceEngine: 'BEGELEIDINGSMOTOR',
+      realTimeNetwork: 'Realtime Netwerk',
+      suppliersVal: '342 Leveranciers',
+      activeOrders: 'Actieve Bestellingen',
+      tonsVal: '1.150 ton',
+      leadTimes: 'Doorlooptijden',
+      leadTimesVal: 'Gem. 14 Dagen',
+      qualityCompliance: 'Kwaliteitsnaleving',
+      qualityVal: '99.8% Gecertificeerd',
+      demandForecasting: 'Vraagvoorspelling',
+      accuracyVal: '94% Nauwkeurigheid',
+      routeOptimization: 'Routeoptimalisatie',
+      savingsVal: '18% Besparing',
+      regulatorySupport: 'Regelgevingsondersteuning',
+      regulationVal: 'EU EN 10025',
+      riskAssessment: 'Risicobeoordeling',
+      riskVal: 'Laag Geschilpercentage',
+      regulationLabel: 'Regelgeving',
+      savingsLabel: 'Besparing',
+      regionLabel: 'Europa',
+      engineLabel: 'Motor'
     },
     es: {
-      heroTitle: 'Su Socio Europeo en Estructuras de Acero de Precisión',
-      heroSub: 'Gestión ágil de la cadena de suministro: ingeniería de diseño, suministro de materias primas certificadas y fabricación local por talleres metalúrgicos calificados.',
-      ctaRfq: 'Solicitar Presupuesto (RFQ)',
-      ctaProjects: 'Ver Casos de Éxito',
-      metric1Lbl: 'Plazo de Cotización',
-      metric2Lbl: 'Normas de Ejecución (EXC1-EXC3)',
-      metric3Lbl: 'Impuesto sobre beneficios reinvertidos (EE)',
-      activitiesTitle: 'Nuestras Actividades y Especialización',
-      activitiesSubtitle: 'Soluciones de ingeniería y fabricación adaptadas a los estrictos requisitos de la infraestructura europea.',
-      act1Title: 'Bancadas y Chasis Industriales',
-      act1Desc: 'Diseño y fabricación de bases de maquinaria pesada y chasis soldados de alta precisión.',
-      act1Btn: 'Saber más',
-      act2Title: 'Puentes de Acero y Estructuras en Celosía',
-      act2Desc: 'Gestión de proyectos de pórticos estructurales pesados y pasarelas metálicas en celosía.',
-      act3Title: 'Accesos Industriales de Alta Seguridad',
-      act3Desc: 'Pasarelas suspendidas, plataformas complejas de mantenimiento y sistemas seguros de acceso.',
-      act4Title: 'Ingeniería e Inspección CND',
-      act4Desc: 'Modelado 3D, cálculos estructurales según Eurocódigo 3 e inspecciones técnicas in situ.',
-      valueTitle: '¿Por qué SideroHub?',
-      v1Title: 'Ingeniería de Precisión',
-      v1Desc: 'Modelado 3D avanzado (Tekla/CAD) y cálculos de diseño procesados por nuestro centro técnico de ingeniería.',
-      v2Title: 'Materiales Certificados',
-      v2Desc: 'Suministro directo de perfiles y chapas laminadas (S235JR, S355J2+N con certificados 3.1) de acererías europeas líderes.',
-      v3Title: 'Talleres Locales',
-      v3Desc: 'Fabricación certificada ISO 3834, corte por láser y soldadura subcontratados a talleres locales en Francia para ahorrar costes de transporte.',
-      mapTitle: 'Red Logística Europea',
-      mapSub: 'Gestionado bajo la jurisdicción corporativa de Estonia, coordinamos la logística y los contratos en toda Europa con plena conformidad legal.'
+      title: 'Inteligencia Industrial y Sistemas de Ingeniería',
+      subtitle: 'Conectando proveedores de acero europeos verificados para elevar la calidad del producto, los estándares de ingeniería y la gestión empresarial.',
+      getStarted: 'Comenzar',
+      activeSupplyChains: 'CADENAS DE SUMINISTRO ACTIVAS',
+      guidanceEngine: 'MOTOR DE ORIENTACIÓN',
+      realTimeNetwork: 'Red en Tiempo Real',
+      suppliersVal: '342 Proveedores',
+      activeOrders: 'Pedidos Activos',
+      tonsVal: '1,150 toneladas',
+      leadTimes: 'Plazos de Entrega',
+      leadTimesVal: 'Prom. 14 Días',
+      qualityCompliance: 'Cumplimiento de Calidad',
+      qualityVal: '99.8% Certificado',
+      demandForecasting: 'Previsión de la Demanda',
+      accuracyVal: '94% de Precisión',
+      routeOptimization: 'Optimización de Rutas',
+      savingsVal: '18% de Ahorro',
+      regulatorySupport: 'Soporte Regulatorio',
+      regulationVal: 'UE EN 10025',
+      riskAssessment: 'Evaluación de Riesgos',
+      riskVal: 'Baja Tasa de Disputas',
+      regulationLabel: 'Regulación',
+      savingsLabel: 'Ahorro',
+      regionLabel: 'Europa',
+      engineLabel: 'Motor'
     },
     it: {
-      heroTitle: 'Il Vostro Partner Europeo per Strutture in Acciaio di Precisione',
-      heroSub: 'Gestione agile della catena di fornitura: centro di ingegneria, approvvigionamento di materie prime certificate e fabbricazione locale da parte di officine specializzate.',
-      ctaRfq: 'Richiedi Preventivo (RFQ)',
-      ctaProjects: 'Vedi i Progetti',
-      metric1Lbl: 'Tempo di Preventivazione',
-      metric2Lbl: 'Classi di Esecuzione (EXC1-EXC3)',
-      metric3Lbl: 'Tassazione sui profitti reinvestiti (EE)',
-      activitiesTitle: 'Le Nostre Attività e Competenza Settoriale',
-      activitiesSubtitle: 'Soluzioni di ingegneria e fabbricazione su misura per i severi requisiti delle infrastrutture europee.',
-      act1Title: 'Bancali e Telai Industriali',
-      act1Desc: 'Progettazione e fabbricazione di basi per macchine pesanti e telai elettrosaldati di alta precisione.',
-      act1Btn: 'Scopri di più',
-      act2Title: 'Ponti in Acciaio e Strutture Reticolari',
-      act2Desc: 'Gestione di progetti di carpenteria pesante e strutture reticolari in acciaio per attraversamenti.',
-      act3Title: 'Accessi Industriali ad Alta Sicurezza',
-      act3Desc: 'Passerelle sospese, piattaforme di manutenzione complesse e scale metalliche di sicurezza.',
-      act4Title: 'Ingegneria e Ispezione PND',
-      act4Desc: 'Modellazione 3D, calcoli strutturali Eurocodice 3 e controlli non distruttivi in cantiere.',
-      valueTitle: 'Perché scegliere SideroHub?',
-      v1Title: 'Ingegneria di Precisione',
-      v1Desc: 'Modellazione 3D avanzata (Tekla/CAD) e calcoli strutturali eseguiti dal nostro centro tecnico interno.',
-      v2Title: 'Materiali Certificati',
-      v2Desc: 'Approvvigionamento diretto di travi e lamiere (S235JR, S355J2+N con certificati 3.1) dalle principali acciaierie europee.',
-      v3Title: 'Carpenterie Locali',
-      v3Desc: 'Fabbricazione certificata ISO 3834, taglio laser e saldatura affidati a officine locali in Francia per azzerare le spese di trasporto.',
-      mapTitle: 'Rete Logistica Europea',
-      mapSub: 'Gestito sotto il quadro societario estone, coordiniamo contratti e spedizioni in tutta Europa in totale conformità normativa.'
+      title: 'Intelligenza Industriale & Sistemi di Ingegneria',
+      subtitle: 'Collegamento di fornitori di acciaio europei verificati per elevare la qualità del prodotto, gli standard di ingegneria e la gestione aziendale.',
+      getStarted: 'Inizia Ora',
+      activeSupplyChains: 'CATENE DI FORNITURA ATTIVE',
+      guidanceEngine: 'MOTORE DI GUIDA',
+      realTimeNetwork: 'Rete in Tempo Reale',
+      suppliersVal: '342 Fornitori',
+      activeOrders: 'Ordini Attivi',
+      tonsVal: '1.150 tonnellate',
+      leadTimes: 'Tempi di Consegna',
+      leadTimesVal: 'Media 14 Giorni',
+      qualityCompliance: 'Conformità Qualità',
+      qualityVal: 'Certificato al 99.8%',
+      demandForecasting: 'Previsione della Domanda',
+      accuracyVal: 'Precisione al 94%',
+      routeOptimization: 'Ottimizzazione Percorsi',
+      savingsVal: 'Risparmio del 18%',
+      regulatorySupport: 'Supporto normativo',
+      regulationVal: 'UE EN 10025',
+      riskAssessment: 'Valutazione dei Rischi',
+      riskVal: 'Basso tasso di controversie',
+      regulationLabel: 'Regolamento',
+      savingsLabel: 'Risparmio',
+      regionLabel: 'Motore'
     },
     no: {
-      heroTitle: 'Din Europeiske Partner for Presisjonsstålkonstruksjoner',
-      heroSub: 'Smidig forsyningskjede: ingeniøravdeling, innkjøp av sertifiserte råvarer og lokal produksjon av spesialiserte sveisegodkjente verksteder.',
-      ctaRfq: 'Be om tilbud (RFQ)',
-      ctaProjects: 'Se våre prosjekter',
-      metric1Lbl: 'Svartid på tilbud',
-      metric2Lbl: 'Utførelsesklasser (EXC1-EXC3)',
-      metric3Lbl: 'Gjeninvestert overskuddsskatt (EE)',
-      activitiesTitle: 'Våre Aktiviteter & Sektor-Expertise',
-      activitiesSubtitle: 'Prosjekterings- og fabrikasjonsløsninger tilpasset de strenge kravene til europeisk infrastruktur.',
-      act1Title: 'Industrielle Chassis & Rammer',
-      act1Desc: 'Design og produksjon av tunge maskinfundamenter og fintolerert sveisede rammer.',
-      act1Btn: 'Les mer',
-      act2Title: 'Stålbroer & Fagverkskonstruksjoner',
-      act2Desc: 'Prosjektstyring av tunge fagverk og stålkonstruksjoner for kryssinger.',
-      act3Title: 'Industrielle Adkomstsystemer',
-      act3Desc: 'Hengende gangveier, komplekse plattformer for vedlikehold og sikre ståltrapper.',
-      act4Title: 'Ingeniørtjenester & NDT-kontroll',
-      act4Desc: '3D-modellering, Eurocode 3 styrkeberegninger og tekniske kontroller på anlegget.',
-      valueTitle: 'Hvorfor SideroHub?',
-      v1Title: 'Nøyaktig Prosjektering',
-      v1Desc: 'Avansert 3D-modellering (Tekla/CAD) og strukturanalyser utført av vår sentraliserte ingeniøravdeling.',
-      v2Title: 'Sertifiserte Materialer',
-      v2Desc: 'Direkte innkjøp av bjelker og plater (S235JR, S355J2+N med 3.1 sertifikater) fra ledende stålverk i Europa.',
-      v3Title: 'Lokale Sveisesteder',
-      v3Desc: 'ISO 3834 sertifisert tilvirking, laserskjæring og sveising utført av lokale verksteder for å minimere transportkostnader.',
-      mapTitle: 'Europeisk Logistikknettverk',
-      mapSub: 'Administrert under estisk selskapsstruktur, koordinerer vi logistikk og kontrakter i hele Europa med full juridisk sikkerhet.'
+      title: 'Industriell Intelligens & Ingeniørsystemer',
+      subtitle: 'Kopler verifserte europeiske stålprodusenter for å øke produktkvalitet, ingeniørstandarder og virksomhetsstyring.',
+      getStarted: 'Kom i gang',
+      activeSupplyChains: 'AKTIVE FORSYNINGSKJEDER',
+      guidanceEngine: 'VEILEDNINGSMOTOR',
+      realTimeNetwork: 'Sanntidsnettverk',
+      suppliersVal: '342 Leverandører',
+      activeOrders: 'Aktive Bestillinger',
+      tonsVal: '1 150 tonn',
+      leadTimes: 'Leveringstider',
+      leadTimesVal: 'Snitt 14 Dager',
+      qualityCompliance: 'Kvalitetssertifisering',
+      qualityVal: '99.8% Sertifisert',
+      demandForecasting: 'Etterspørselsvarsling',
+      accuracyVal: '94% Nøyaktighet',
+      routeOptimization: 'Ruteoptimalisering',
+      savingsVal: '18% Besparing',
+      regulatorySupport: 'Regulatorisk Støtte',
+      regulationVal: 'EU EN 10025',
+      riskAssessment: 'Risikovurdering',
+      riskVal: 'Lav tvisterate',
+      regulationLabel: 'Regulering',
+      savingsLabel: 'Besparing',
+      regionLabel: 'Europa',
+      engineLabel: 'Motor'
     },
     sv: {
-      heroTitle: 'Din Europeiska Partner för Precisionsstålkonstruktioner',
-      heroSub: 'Smidig supply chain management: ingenjörscenter, inköp av certifierat råmaterial och lokal tillverkning av specialiserade svetsverkstäder.',
-      ctaRfq: 'Begär offert (RFQ)',
-      ctaProjects: 'Visa referensprojekt',
-      metric1Lbl: 'Offerttid',
-      metric2Lbl: 'Utförandestandarder (EXC1-EXC3)',
-      metric3Lbl: 'Reinvesterad vinstskatt (EE)',
-      activitiesTitle: 'Våra Aktiviteter & Expertis',
-      activitiesSubtitle: 'Konstruktions- och tillverkningslösningar anpassade för europeiska infrastrukturkrav.',
-      act1Title: 'Industriella Chassin & Ramar',
-      act1Desc: 'Konstruktion och tillverkning av tunga maskinbäddar och finmekaniskt svetsade ramar.',
-      act1Btn: 'Läs mer',
-      act2Title: 'Stålbroar & Fackverkskonstruktioner',
-      act2Desc: 'Projektledning för tunga bärande ramar och fackverksbroar av stål.',
-      act3Title: 'Industriella Tillträdessystem',
-      act3Desc: 'Hängande gångbroar, komplexa underhållsplattformar och säkra tillträdestrappor av stål.',
-      act4Title: 'Konstruktion & NDT-besiktning',
-      act4Desc: '3D-modellering, hållfasthetsberäkningar enligt Eurokod 3 och teknisk inspektion på plats.',
-      valueTitle: 'Varför SideroHub?',
-      v1Title: 'Precisionskonstruktion',
-      v1Desc: 'Avancerad 3D-modellering (Tekla/CAD) och konstruktionsberäkningar bearbetade av vårt centrala ingenjörscenter.',
-      v2Title: 'Certifierat Material',
-      v2Desc: 'Direktinköp av balkar och plåt (S235JR, S355J2+N med 3.1-intyg) från ledande europeiska stålverk.',
-      v3Title: 'Lokala Verkstadsnätverk',
-      v3Desc: 'ISO 3834-certifierad tillverkning, laserskärning och svetsning hos lokala verkstäder för lägsta transportkostnader.',
-      mapTitle: 'Europeiskt Logistiknätverk',
-      mapSub: 'Hanterat inom estniskt bolagsramverk samordnar vi logistik och kontrakt över hela Europa med full regelefterlevnad.'
+      title: 'Industriell Intelligens & Engineering-system',
+      subtitle: 'Kopplar samman verifierade europeiska stålleverantörer för att höja produktkvalitet, tekniska standarder och företagsledning.',
+      getStarted: 'Kom igång',
+      activeSupplyChains: 'AKTIVA FÖRSÖRJNINGSKEDJOR',
+      guidanceEngine: 'GUIDNINGSMOTOR',
+      realTimeNetwork: 'Realtidsnätverk',
+      suppliersVal: '342 Leverantörer',
+      activeOrders: 'Aktiva Order',
+      tonsVal: '1 150 ton',
+      leadTimes: 'Ledtider',
+      leadTimesVal: 'Snitt 14 Dagar',
+      qualityCompliance: 'Kvalitetsefterlevnad',
+      qualityVal: '99.8% Certifierad',
+      demandForecasting: 'Prognos av efterfrågan',
+      accuracyVal: '94% Noggrannhet',
+      routeOptimization: 'Ruttoptimering',
+      savingsVal: '18% Besparing',
+      regulatorySupport: 'Tillsynsstöd',
+      regulationVal: 'EU EN 10025',
+      riskAssessment: 'Riskbedömning',
+      riskVal: 'Låg tvistfrekvens',
+      regulationLabel: 'Reglering',
+      savingsLabel: 'Besparing',
+      regionLabel: 'Europa',
+      engineLabel: 'Motor'
     },
     pl: {
-      heroTitle: 'Twój Europejski Partner w Zakresie Precyzyjnych Konstrukcji Stalowych',
-      heroSub: 'Zwinne zarządzanie łańcuchem dostaw: biuro inżynieryjne, zaopatrzenie w certyfikowane surowce i lokalna produkcja w wyspecjalizowanych warsztatach.',
-      ctaRfq: 'Zapytaj o wycenę (RFQ)',
-      ctaProjects: 'Zobacz Projekty',
-      metric1Lbl: 'Czas Wyceny',
-      metric2Lbl: 'Normy Wykonania (EXC1-EXC3)',
-      metric3Lbl: 'Podatek od zysków reinwestowanych (EE)',
-      activitiesTitle: 'Nasza Działalność i Specjalizacja Branżowa',
-      activitiesSubtitle: 'Rozwiązania inżynieryjne i produkcyjne dostosowane do rygorystycznych wymogów infrastruktury europejskiej.',
-      act1Title: 'Bazy Maszyn i Ramy Przemysłowe',
-      act1Desc: 'Projektowanie i produkcja ciężkich łoży maszynowych i precyzyjnych ram spawanych.',
-      act1Btn: 'Dowiedz się więcej',
-      act2Title: 'Mosty Stalowe i Konstrukcje Kratownicowe',
-      act2Desc: 'Zarządzanie projektami ciężkich konstrukcji wsporczych i stalowych kładek kratownicowych.',
-      act3Title: 'Przemysłowe Prace Wysokościowe i Dostęp',
-      act3Desc: 'Podwieszane pomosty robocze, skomplikowane platformy konserwacyjne i bezpieczne schody stalowe.',
-      act4Title: 'Projektowanie i Badania NDT',
-      act4Desc: 'Modelowanie 3D, obliczenia konstrukcyjne wg Eurokodu 3 oraz badania nieniszczące konstrukcji.',
-      valueTitle: 'Dlaczego SideroHub?',
-      v1Title: 'Precyzyjna Inżynieria',
-      v1Desc: 'Zaawansowane modelowanie 3D (Tekla/CAD) oraz obliczenia wytrzymałościowe realizowane przez nasze centralne biuro inżynieryjne.',
-      v2Title: 'Certyfikowane Materiały',
-      v2Desc: 'Bezpośrednie zaopatrzenie w kształtowniki i blachy (S235JR, S355J2+N z atestami 3.1) z wiodących hut europejskich.',
-      v3Title: 'Lokalne Warsztaty',
-      v3Desc: 'Produkcja certyfikowana wg ISO 3834, cięcie laserowe i spawanie powierzone lokalnym warsztatom w celu redukcji kosztów transportu.',
-      mapTitle: 'Europejska Sieć Logistyczna',
-      mapSub: 'Dzięki rejestracji i zarządowi w Estonii koordynujemy projekty i finanse w całej Europie w pełni legalnie i bezpiecznie.'
+      title: 'Inteligencja Przemysłowa & Systemy Inżynieryjne',
+      subtitle: 'Łączenie zweryfikowanych europejskich dostawców stali w celu podniesienia jakości produktów, standardów inżynieryjnych i zarządzania przedsiębiorstwem.',
+      getStarted: 'Rozpocznij',
+      activeSupplyChains: 'AKTYWNE ŁAŃCUCHY DOSTAW',
+      guidanceEngine: 'SILNIK DORADCZY',
+      realTimeNetwork: 'Sieć w Czasie Rzeczywistym',
+      suppliersVal: '342 Dostawców',
+      activeOrders: 'Aktywne Zamówienia',
+      tonsVal: '1 150 ton',
+      leadTimes: 'Czas Realizacji',
+      leadTimesVal: 'Śr. 14 Dni',
+      qualityCompliance: 'Zgodność Jakości',
+      qualityVal: 'Certyfikowane 99.8%',
+      demandForecasting: 'Prognozowanie Popytu',
+      accuracyVal: 'Dokładność 94%',
+      routeOptimization: 'Optymalizacja Tras',
+      savingsVal: '18% Oszczędności',
+      regulatorySupport: 'Wsparcie Regulacyjne',
+      regulationVal: 'UE EN 10025',
+      riskAssessment: 'Ocena Ryzyka',
+      riskVal: 'Niska stopa sporów',
+      regulationLabel: 'Regulacja',
+      savingsLabel: 'Oszczędności',
+      regionLabel: 'Europa',
+      engineLabel: 'Silnik'
     }
   };
 
   const currentLang = translations[lang] ? lang : 'en';
-  const t = translations[currentLang];
-
-  const activities = [
-    {
-      title: t.act1Title,
-      desc: t.act1Desc,
-      image: '/assets/images/steel_fabrication.png',
-      color: '#ff7a00',
-    },
-    {
-      title: t.act2Title,
-      desc: t.act2Desc,
-      image: '/assets/images/bridge_assembly.png',
-      color: '#10b981',
-    },
-    {
-      title: t.act3Title,
-      desc: t.act3Desc,
-      image: '/assets/images/industrial_welding.png',
-      color: '#ef4444',
-    },
-    {
-      title: t.act4Title,
-      desc: t.act4Desc,
-      image: '/assets/images/engineering_review.png',
-      color: '#3b82f6',
-    }
-  ];
+  const t = translations[currentLang] || translations.en;
 
   return (
-    <div className="cad-grid-bg" style={{ minHeight: '100vh', padding: '4rem 0 0 0' }}>
-      
-      {/* Hero Section: Modern Split Screen with Cinematic Image */}
-      <section className="container" style={{ marginBottom: '8rem', paddingTop: '2rem' }}>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-          gap: '4rem',
-          alignItems: 'center' 
-        }}>
-          {/* Left Text Column */}
-          <div style={{ textAlign: 'left' }}>
-            <span className="badge badge-standard" style={{ marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              {isFr ? 'Hub de Construction Métallique' : 'Industrial Steel Supply Hub'}
-            </span>
-            <h1 style={{ fontSize: '3.2rem', lineHeight: '1.1', marginBottom: '1.5rem', fontWeight: '800' }}>
-              {t.heroTitle}
+    <div className="relative min-h-[calc(100vh-80px)] w-full text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
+
+      {/* 1. Crisp, Un-faded Cement Factory Background with Parallax Scroll */}
+      <motion.div
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/assets/images/bg-cement-factory.webp')",
+          y: backgroundY
+        }}
+      />
+
+      {/* Dark diagonal gradient overlay starting from bottom-left and fading out towards top-right */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(45deg, rgba(10, 16, 29, 0.96) 0%, rgba(10, 16, 29, 0.65) 45%, rgba(10, 16, 29, 0) 100%)',
+        }}
+      />
+
+      {/* 2. Connected Star Constellation Network with glows/halos */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <svg className="w-full h-full opacity-65">
+          <defs>
+            <linearGradient id="cyan-glow-line" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.3" />
+            </linearGradient>
+            <filter id="star-halo" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Left Margin Star Network */}
+          <line x1="3%" y1="18%" x2="12%" y2="30%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" strokeDasharray="3 3" />
+          <line x1="12%" y1="30%" x2="6%" y2="48%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" />
+          <line x1="6%" y1="48%" x2="14%" y2="68%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" />
+          <line x1="14%" y1="68%" x2="4%" y2="85%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" strokeDasharray="4 4" />
+          <line x1="12%" y1="30%" x2="22%" y2="22%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" />
+
+          {/* Glowing Halos underneath main stars */}
+          <circle cx="3%" cy="18%" r="12" fill="#06b6d4" opacity="0.3" filter="url(#star-halo)" />
+          <circle cx="12%" cy="30%" r="14" fill="#22d3ee" opacity="0.35" filter="url(#star-halo)" />
+          <circle cx="6%" cy="48%" r="16" fill="#38bdf8" opacity="0.35" filter="url(#star-halo)" />
+          <circle cx="14%" cy="68%" r="14" fill="#06b6d4" opacity="0.3" filter="url(#star-halo)" />
+          <circle cx="4%" cy="85%" r="12" fill="#06b6d4" opacity="0.3" filter="url(#star-halo)" />
+          <circle cx="22%" cy="22%" r="12" fill="#38bdf8" opacity="0.25" filter="url(#star-halo)" />
+
+          {/* Star Cores */}
+          <circle cx="3%" cy="18%" r="4" className="fill-cyan-400 animate-pulse" />
+          <circle cx="12%" cy="30%" r="5.5" className="fill-cyan-200" />
+          <circle cx="6%" cy="48%" r="6.5" className="fill-blue-300" />
+          <circle cx="14%" cy="68%" r="5.5" className="fill-cyan-200 animate-pulse" />
+          <circle cx="4%" cy="85%" r="4.5" className="fill-cyan-400" />
+          <circle cx="22%" cy="22%" r="4.5" className="fill-cyan-100" />
+
+          {/* Right Side Star Network */}
+          <line x1="78%" y1="15%" x2="88%" y2="28%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" />
+          <line x1="88%" y1="28%" x2="95%" y2="45%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" strokeDasharray="4 4" />
+          <line x1="88%" y1="28%" x2="82%" y2="58%" stroke="url(#cyan-glow-line)" strokeWidth="1.5" />
+
+          {/* Glowing Halos underneath main stars */}
+          <circle cx="78%" cy="15%" r="12" fill="#22d3ee" opacity="0.3" filter="url(#star-halo)" />
+          <circle cx="88%" cy="28%" r="16" fill="#06b6d4" opacity="0.4" filter="url(#star-halo)" />
+          <circle cx="95%" cy="45%" r="14" fill="#38bdf8" opacity="0.3" filter="url(#star-halo)" />
+          <circle cx="82%" cy="58%" r="12" fill="#22d3ee" opacity="0.3" filter="url(#star-halo)" />
+
+          {/* Star Cores */}
+          <circle cx="78%" cy="15%" r="4.5" className="fill-cyan-200" />
+          <circle cx="88%" cy="28%" r="6" className="fill-cyan-100 animate-pulse" />
+          <circle cx="95%" cy="45%" r="5" className="fill-blue-300" />
+          <circle cx="82%" cy="58%" r="4.5" className="fill-cyan-200" />
+        </svg>
+      </div>
+
+      {/* Main Content Container (positioned explicitly at z-10 above the background with guaranteed 100% width) */}
+      <main className="relative z-10 w-full mx-auto px-6 py-16 flex flex-col justify-center min-h-[calc(100vh-80px)]" style={{ width: '100%' }}>
+
+        {/* Core Layout Wrapper limiting width to 835px to align text and cards with smaller sizes */}
+        <div style={{ maxWidth: '835px', width: '100%', margin: '0 auto' }}>
+
+          {/* Dynamic Section Header - Left Aligned and matching left boundary of Card 1 */}
+          <div className="section-header text-left mb-12" style={{ position: 'relative', zIndex: 20, textAlign: 'left', marginBottom: '1rem' }}>
+            <h1
+              className="section-title tracking-tight text-white mb-5"
+              style={{
+                margin: '0 0 0rem 0',
+                fontSize: '3rem',
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: '600',
+                lineHeight: '1.05'
+              }}
+            >
+              Industrial Intelligence &<br />
+              Engineering Systems
             </h1>
-            <p className="section-subtitle" style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '2.5rem', margin: '0 0 2.5rem 0', textAlign: 'left' }}>
-              {t.heroSub}
+            <p className="section-subtitle text-base sm:text-lg text-slate-300 max-w-xl font-normal leading-relaxed" style={{ margin: '0 0 0.75rem 0' }}>
+              {t.subtitle}
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link href={`/${lang}/rfq`} className="btn btn-primary" style={{ padding: '0.9rem 2rem' }}>
-                {t.ctaRfq}
-              </Link>
-              <Link href={`/${lang}/projects`} className="btn btn-secondary" style={{ padding: '0.9rem 2rem' }}>
-                {t.ctaProjects}
-              </Link>
-            </div>
+            <button
+              className="hover:bg-cyan-300 text-slate-950 text-base tracking-wide transition-all transform hover:scale-105 active:scale-95"
+              style={{
+                padding: '0.4rem 1rem',
+                borderRadius: '8px',
+                backgroundColor: '#22d3ee',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 0 30px rgba(6,182,212,0.6)'
+              }}
+            >
+              {t.getStarted}
+            </button>
           </div>
 
-          {/* Right Image Column: High-tech steel fabrication card */}
-          <div style={{ position: 'relative' }}>
-            <div style={{ 
-              position: 'absolute', 
-              inset: '-10px', 
-              border: '1px dashed var(--color-steel-border)', 
-              borderRadius: '12px',
-              pointerEvents: 'none'
-            }} />
-            <div style={{ 
-              borderRadius: '8px', 
-              overflow: 'hidden', 
-              border: '1px solid var(--color-steel-border)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
-              backgroundColor: 'var(--color-steel-medium)',
-              height: '420px',
-              position: 'relative'
-            }}>
-              <img 
-                src="/assets/images/steel_fabrication.png" 
-                alt="Industrial Steel Structure Fabrication" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-              />
-              {/* Bottom Glow Overlay */}
-              <div style={{ 
-                position: 'absolute', 
-                bottom: 0, 
-                left: 0, 
-                right: 0, 
-                background: 'linear-gradient(to top, rgba(11, 14, 20, 0.9) 0%, transparent 100%)',
-                padding: '2rem 1.5rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end'
-              }}>
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--color-amber)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em' }}>
-                    Active Workshop
-                  </span>
-                  <h4 style={{ fontSize: '1.1rem', marginTop: '0.2rem' }}>Mécano-Soudure EXC2</h4>
-                </div>
-                <span className="badge badge-steel">EN 1090-2</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Metrics Row */}
-      <section className="container" style={{ marginBottom: '8rem' }}>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: '2rem' 
-        }}>
-          {[
-            { val: t.metric1Val, lbl: t.metric1Lbl },
-            { val: t.metric2Val, lbl: t.metric2Lbl },
-            { val: t.metric3Val, lbl: t.metric3Lbl }
-          ].map((m, i) => (
-            <div key={i} className="steel-card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
-              <div style={{ fontSize: '3rem', fontWeight: '800', color: 'var(--color-amber)', marginBottom: '0.5rem', fontFamily: 'var(--font-space-grotesk)' }}>
-                {m.val}
-              </div>
-              <div className="form-label" style={{ fontSize: '0.85rem' }}>{m.lbl}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Key Activities Section: Mimicking the can.fr structure */}
-      <section className="container" style={{ marginBottom: '8rem' }}>
-        <div className="section-header">
-          <h2 className="section-title">{t.activitiesTitle}</h2>
-          <p className="section-subtitle">{t.activitiesSubtitle}</p>
-        </div>
-        
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
-          gap: '2rem' 
-        }}>
-          {activities.map((act, idx) => (
-            <div key={idx} className="steel-card" style={{ 
-              padding: '0', 
-              borderRadius: '8px', 
-              overflow: 'hidden', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: '100%',
-              backgroundColor: 'var(--color-steel-medium)'
-            }}>
-              {/* Card Image Container */}
-              <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
-                <img 
-                  src={act.image} 
-                  alt={act.title} 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover',
-                    transition: 'transform 0.5s ease'
-                  }}
-                  className="activity-card-img"
-                />
-              </div>
-              
-              {/* Colored Line Tag */}
-              <div style={{ height: '4px', backgroundColor: act.color, width: '100%' }} />
-
-              {/* Card Body */}
-              <div style={{ padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', flex: '1' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.75rem', lineHeight: '1.3' }}>
-                  {act.title}
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '2rem', flex: '1' }}>
-                  {act.desc}
-                </p>
-                <Link href={`/${lang}/services`} className="btn btn-secondary" style={{ 
-                  marginTop: 'auto', 
-                  alignSelf: 'flex-start',
-                  fontSize: '0.85rem',
-                  padding: '0.5rem 1rem',
-                  borderColor: act.color,
-                  color: '#ffffff'
-                }}>
-                  {t.act1Btn}
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="container" style={{ marginBottom: '8rem' }}>
-        <div className="section-header">
-          <h2 className="section-title">{t.valueTitle}</h2>
-        </div>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-          gap: '2.5rem' 
-        }}>
-          <div className="steel-card">
-            <div style={{ color: 'var(--color-cad-blue)', marginBottom: '1.5rem' }}>
-              <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" strokeWidth="2" fill="none">
-                <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18l-5-4-5 4-5-4-5 4z" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>{t.v1Title}</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{t.v1Desc}</p>
-          </div>
-
-          <div className="steel-card">
-            <div style={{ color: 'var(--color-cad-blue)', marginBottom: '1.5rem' }}>
-              <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" strokeWidth="2" fill="none">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38l5.67-5.67" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>{t.v2Title}</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{t.v2Desc}</p>
-          </div>
-
-          <div className="steel-card">
-            <div style={{ color: 'var(--color-cad-blue)', marginBottom: '1.5rem' }}>
-              <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" strokeWidth="2" fill="none">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>{t.v3Title}</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{t.v3Desc}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Network Coverage */}
-      <section className="container" style={{ paddingBottom: '8rem' }}>
-        <div className="steel-card" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-          gap: '3rem',
-          alignItems: 'center',
-          padding: '4rem 3rem'
-        }}>
-          <div>
-            <span className="badge badge-steel" style={{ marginBottom: '1rem' }}>E-Residency / Estonia Hub</span>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', lineHeight: '1.2' }}>{t.mapTitle}</h2>
-            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '1.5rem' }}>{t.mapSub}</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-amber)' }} />
-                <span>Contract & Banking operations: Tallinn, Estonia</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-cad-blue)' }} />
-                <span>Engineering & CAD study: Intellectual Center</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-                <span>Fabrication & Welder validation: Local EU Workshops</span>
-              </div>
-            </div>
-          </div>
-          {/* Mock CAD Grid Visual representing EU coverage */}
-          <div style={{ 
-            height: '280px', 
-            borderRadius: '6px', 
-            border: '1px dashed var(--color-steel-border)', 
+          {/* 3. Portfolio Panels - Sized 10% smaller (maxWidth: 410px) and centered with 15px gap (half spacing) */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '15px',
+            justifyContent: 'center',
+            width: '100%',
             position: 'relative',
-            backgroundColor: 'rgba(0,0,0,0.3)',
-            overflow: 'hidden'
-          }} className="flex-center">
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.15 }} className="cad-grid-bg" />
-            <div style={{ color: 'var(--color-steel-border)', fontSize: '0.8rem', position: 'absolute', top: '10px', left: '10px' }}>GRID-SCALE: 1:50000</div>
-            <svg viewBox="0 0 400 200" width="100%" height="80%" stroke="var(--color-cad-blue)" strokeWidth="1.5" fill="none" style={{ opacity: 0.8 }}>
-              <circle cx="340" cy="40" r="6" fill="var(--color-cad-blue)" />
-              <text x="310" y="30" fill="#ffffff" fontSize="10" fontFamily="var(--font-space-grotesk)">Tallinn (EE)</text>
-              <circle cx="360" cy="180" r="6" fill="var(--color-amber)" />
-              <text x="280" y="185" fill="var(--color-amber)" fontSize="10" fontFamily="var(--font-space-grotesk)">Engineering Hub</text>
-              <circle cx="100" cy="100" r="5" fill="#10b981" />
-              <text x="60" y="90" fill="#ffffff" fontSize="9">Rhône-Alpes</text>
-              <circle cx="80" cy="40" r="5" fill="#10b981" />
-              <text x="50" y="35" fill="#ffffff" fontSize="9">Lille (FR)</text>
-              <line x1="340" y1="40" x2="360" y2="180" strokeDasharray="3,3" />
-              <line x1="340" y1="40" x2="100" y2="100" />
-              <line x1="340" y1="40" x2="80" y2="40" />
-              <line x1="360" y1="180" x2="100" y2="100" strokeDasharray="3,3" stroke="var(--color-amber)" />
-              <line x1="100" y1="100" x2="80" y2="40" stroke="#10b981" />
-            </svg>
+            zIndex: 20,
+            marginBottom: '3rem'
+          }}>
+
+            {/* Card 1: ACTIVE SUPPLY CHAINS */}
+            <motion.div
+              onMouseEnter={() => setHoveredPanel('left')}
+              onMouseLeave={() => setHoveredPanel(null)}
+              className="steel-card"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                maxWidth: '410px',
+                height: '246px',
+                background: 'rgba(10, 16, 29, 0.5)',
+                backdropFilter: 'blur(5px)',
+                border: '1px solid var(--color-steel-border)',
+                borderRadius: '12px',
+                padding: '1rem 1rem'
+              }}
+            >
+              {/* Header Section from Template */}
+              <div style={{ marginBottom: '1rem', borderBottom: '1px solid var(--color-steel-border)', paddingBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '700', lineHeight: '1.2' }}>{t.activeSupplyChains}</h3>
+                </div>
+                <MoreHorizontal className="w-4 h-4 text-slate-400 cursor-pointer hover:text-white transition-colors" />
+              </div>
+
+              {/* Split layout inside the steel-card */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', flex: 1 }}>
+
+                {/* Left Column - Stats Pills */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', justifyContent: 'space-between' }}>
+
+                  {/* Item 1 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <Network className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.realTimeNetwork}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.suppliersVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.activeOrders}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.tonsVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 3 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.leadTimes}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.leadTimesVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 4 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-emerald-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.qualityCompliance}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-amber)', marginTop: '0.15rem' }}>({t.qualityVal})</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right Column - Charts */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', justifyContent: 'space-between' }}>
+
+                  {/* Active Orders Chart Card */}
+                  <div style={{ padding: '0.2rem 0.5rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '80px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-muted)' }}>{t.activeOrders}</span>
+                      <ChevronRight className="w-3 h-3 text-cyan-400 cursor-pointer" />
+                    </div>
+                    <div className="flex items-end justify-between gap-0.5 h-8 pt-0.5">
+                      {activeOrdersBars.slice(0, 14).map((val, idx) => (
+                        <motion.div
+                          key={idx}
+                          className="w-1 rounded-t bg-cyan-400"
+                          style={{ height: `${val * 0.7}%` }}
+                          animate={hoveredPanel === 'left' ? {
+                            height: [`${val * 0.7}%`, `${Math.min(100, val * 0.7 + (idx % 2 === 0 ? 15 : -10))}%`, `${val * 0.7}%`]
+                          } : { height: `${val * 0.7}%` }}
+                          transition={{
+                            repeat: hoveredPanel === 'left' ? Infinity : 0,
+                            duration: 1.2,
+                            delay: idx * 0.03,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lead Times Chart Card */}
+                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '70px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-muted)' }}>{t.leadTimes}</span>
+                      <ChevronRight className="w-3 h-3 text-cyan-400 cursor-pointer" />
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div className="flex flex-col justify-between text-[7px] text-slate-500 h-8 pr-1 font-mono leading-none">
+                        <span>100</span>
+                        <span>0</span>
+                      </div>
+                      <div className="flex-1 flex items-end justify-around h-8 border-l border-b border-white/10 pl-1.5">
+                        {leadTimesBars.map((val, idx) => (
+                          <motion.div
+                            key={idx}
+                            className="w-1 rounded-t bg-cyan-400"
+                            style={{ height: `${val * 0.7}%` }}
+                            animate={hoveredPanel === 'left' ? {
+                              height: [`${val * 0.7}%`, `${Math.min(95, val * 0.7 + (idx % 3 === 0 ? 20 : -10))}%`, `${val * 0.7}%`]
+                            } : { height: `${val * 0.7}%` }}
+                            transition={{
+                              repeat: hoveredPanel === 'left' ? Infinity : 0,
+                              duration: 1.4,
+                              delay: idx * 0.06,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </motion.div>
+
+            {/* Card 2: GUIDANCE ENGINE */}
+            <motion.div
+              onMouseEnter={() => setHoveredPanel('right')}
+              onMouseLeave={() => setHoveredPanel(null)}
+              className="steel-card"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                maxWidth: '410px',
+                height: '246px',
+                background: 'rgba(10, 16, 29, 0.5)',
+                backdropFilter: 'blur(5px)',
+                border: '1px solid var(--color-steel-border)',
+                borderRadius: '12px',
+                padding: '1rem 1rem'
+              }}
+            >
+              {/* Header Section from Template */}
+              <div style={{ marginBottom: '1rem', borderBottom: '1px solid var(--color-steel-border)', paddingBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '700', lineHeight: '1.2' }}>{t.guidanceEngine}</h3>
+                </div>
+                <MoreHorizontal className="w-4 h-4 text-slate-400 cursor-pointer hover:text-white transition-colors" />
+              </div>
+
+              {/* Split layout inside the steel-card */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', flex: 1 }}>
+
+                {/* Left Column - Stats Pills */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', justifyContent: 'space-between' }}>
+
+                  {/* Item 1 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.demandForecasting}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.accuracyVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <Route className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.routeOptimization}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.savingsVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 3 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-cyan-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <Info className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.regulatorySupport}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>({t.regulationVal})</div>
+                    </div>
+                  </div>
+
+                  {/* Item 4 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="rounded-xl text-amber-400 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', width: '34px', height: '34px', flexShrink: 0 }}>
+                      <AlertTriangle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#ffffff', lineHeight: '1' }}>{t.riskAssessment}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-amber)', marginTop: '0.15rem' }}>({t.riskVal})</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right Column - Charts */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', justifyContent: 'space-between' }}>
+
+                  {/* Regulation Chart Card */}
+                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '70px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-muted)' }}>{t.regulationLabel}</span>
+                      <ChevronRight className="w-3 h-3 text-cyan-400 cursor-pointer" />
+                    </div>
+                    <div className="relative h-8 w-full pt-0.5">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 120 40">
+                        <line x1="0" y1="35" x2="120" y2="35" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+                        <line x1="0" y1="20" x2="120" y2="20" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+                        <motion.path
+                          d="M0,30 C20,35 35,22 55,25 C75,28 85,8 100,12 C110,15 115,8 120,5"
+                          fill="none"
+                          stroke="#06b6d4"
+                          strokeWidth="2"
+                          animate={hoveredPanel === 'right' ? {
+                            d: [
+                              "M0,30 C20,35 35,22 55,25 C75,28 85,8 100,12 C110,15 115,8 120,5",
+                              "M0,22 C20,15 35,30 55,10 C75,18 85,25 100,8 C110,10 115,22 120,15",
+                              "M0,30 C20,35 35,22 55,25 C75,28 85,8 100,12 C110,15 115,8 120,5"
+                            ]
+                          } : {}}
+                          transition={{ repeat: hoveredPanel === 'right' ? Infinity : 0, duration: 2.5, ease: "easeInOut" }}
+                        />
+                        <circle cx="85" cy="8" r="2.5" fill="#ffffff" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Risk Assessment Gauge Card */}
+                  <div style={{ padding: '0.5rem 0.75rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '70px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-muted)' }}>{t.riskAssessment}</span>
+                      <ChevronRight className="w-3 h-3 text-cyan-400 cursor-pointer" />
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div className="relative w-12 h-8 flex items-end justify-center">
+                        <svg className="w-full h-full overflow-visible" viewBox="0 0 100 50">
+                          <path
+                            d="M10,45 A40,40 0 0,1 90,45"
+                            fill="none"
+                            stroke="rgba(255,255,255,0.12)"
+                            strokeWidth="6"
+                            strokeLinecap="round"
+                          />
+                          <motion.path
+                            d="M10,45 A40,40 0 0,1 90,45"
+                            fill="none"
+                            stroke="url(#arc-gradient)"
+                            strokeWidth="6"
+                            strokeLinecap="round"
+                            strokeDasharray="125"
+                            strokeDashoffset="12"
+                            animate={hoveredPanel === 'right' ? { strokeDashoffset: [125, 12] } : { strokeDashoffset: 12 }}
+                            transition={{ duration: 1.2, ease: "easeOut" }}
+                          />
+                          <defs>
+                            <linearGradient id="arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#38bdf8" />
+                              <stop offset="100%" stopColor="#06b6d4" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <span className="absolute bottom-0.5 font-bold text-[9px] text-white">94%</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-extrabold text-cyan-400">18%</div>
+                        <div className="text-[8px] text-slate-400 font-medium leading-none">{t.savingsLabel}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </motion.div>
+
           </div>
         </div>
-      </section>
+
+        {/* 4. Verified EU Suppliers Partner Footer */}
+        <div className="pt-16 flex flex-col items-center gap-3" style={{ position: 'relative', zIndex: 20 }}>
+          <span className="text-[10px] font-bold tracking-[0.3em] text-slate-300 uppercase">
+            VERIFIED EU SUPPLIERS
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-85 transition-all">
+            <span className="font-bold text-sm tracking-tight text-slate-200">ArcelorMittal</span>
+            <span className="font-semibold text-xs text-slate-200">thyssenkrupp</span>
+            <span className="font-semibold text-xs text-slate-200">Salzgitter AG</span>
+            <span className="font-bold text-sm tracking-widest text-slate-200">SSAB</span>
+            <span className="font-semibold text-xs text-slate-200">voestalpine</span>
+          </div>
+        </div>
+
+      </main>
     </div>
   );
 }
