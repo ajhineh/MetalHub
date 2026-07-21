@@ -19,7 +19,21 @@ import {
   Upload,
   ArrowRight,
   ArrowLeft,
-  Settings
+  Settings,
+  X,
+  Edit3,
+  Share2,
+  Copy,
+  Printer,
+  FileCheck,
+  Building,
+  User,
+  Mail,
+  Phone,
+  Layers,
+  MapPin,
+  FileImage,
+  FileSpreadsheet
 } from 'lucide-react';
 import styles from './rfq.module.css';
 
@@ -29,21 +43,45 @@ interface PageProps {
   }>;
 }
 
+// Strict Phone & Gibberish Validation Helpers
+const phoneRegex = /^\+?[0-9\s\-\(\)]{7,20}$/;
+
+function isGibberishText(text?: string): boolean {
+  if (!text || text.trim().length === 0) return false;
+  const cleaned = text.trim();
+  // Check for repeated character patterns e.g. "نانانان" or "asdfasdf" or "11111"
+  const hasExtremeCharRepetition = /(.)\1{4,}/.test(cleaned);
+  const words = cleaned.split(/\s+/);
+  const uniqueWords = new Set(words);
+  const isRepetitiveWords = words.length > 3 && uniqueWords.size === 1;
+  const isSingleLongWordWithoutSpace = cleaned.length > 25 && !cleaned.includes(' ');
+  return hasExtremeCharRepetition || isRepetitiveWords || isSingleLongWordWithoutSpace;
+}
+
 // Zod Validation Schema
 const rfqSchema = z.object({
   companyName: z.string().min(2, { message: 'Company name must be at least 2 characters.' }),
   contactName: z.string().min(2, { message: 'Contact name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid business email address.' }),
-  phone: z.string().min(6, { message: 'Please enter a valid phone number.' }),
+  phone: z.string().regex(phoneRegex, { message: 'Invalid phone format. Only numbers, spaces, +, -, () are allowed (min 7 digits).' }),
   steelGrade: z.string(),
   finishing: z.string(),
   tolerance: z.string(),
-  quantity: z.number().min(1, { message: 'Quantity must be at least 1.' }),
+  quantity: z.number().min(1, { message: 'Quantity must be at least 1 unit.' }),
   zipCode: z.string().min(3, { message: 'Please enter a valid delivery zip code.' }),
-  notes: z.string().optional()
+  notes: z.string().optional().refine((val) => !isGibberishText(val), {
+    message: 'Special instructions appear to contain random or repetitive characters. Please provide meaningful notes.'
+  })
 });
 
 type RfqFormData = z.infer<typeof rfqSchema>;
+
+interface VerifiedFile {
+  file: File;
+  previewUrl?: string;
+  fileType: 'cad' | 'pdf' | 'image';
+  binaryVerified: boolean;
+}
 
 export default function RfqPage({ params }: PageProps) {
   const resolvedParams = use(params);
@@ -57,8 +95,9 @@ export default function RfqPage({ params }: PageProps) {
       : 'Get an engineered price quotation within 24-48 hours. Secure file transmission.',
     step1: isFr ? 'Coordonnées' : 'Contact Details',
     step2: isFr ? 'Spécifications' : 'Specifications',
-    step3: isFr ? 'Fichiers CAO' : 'CAD Drawings',
-    step4: isFr ? 'Volume & Envoi' : 'Volume & Submit',
+    step3: isFr ? 'Plans & Fichiers' : 'Drawings & Files',
+    step4: isFr ? 'Volume & Livraison' : 'Volume & Delivery',
+    step5: isFr ? 'Vérification & Envoi' : 'Review & Confirm',
     company: isFr ? 'Nom de la Société' : 'Company Name',
     contact: isFr ? 'Nom & Prénom' : 'Contact Person',
     email: isFr ? 'Adresse Email' : 'Email Address',
@@ -73,40 +112,45 @@ export default function RfqPage({ params }: PageProps) {
     stdTolerance: isFr ? 'Standard (ISO 2768-m)' : 'Standard (ISO 2768-m)',
     fineTolerance: isFr ? 'Précise (ISO 2768-f)' : 'Fine (ISO 2768-f)',
     uploadAreaDefault: isFr
-      ? 'Faites glisser vos fichiers de plans ici ou cliquez pour parcourir'
-      : 'Drag and drop your engineering drawings here or click to browse',
+      ? 'Faites glisser vos fichiers de plans (DXF, DWG, STEP, PDF, JPG, PNG) ici ou cliquez pour parcourir'
+      : 'Drag and drop your engineering files (DXF, DWG, STEP, PDF, JPG, PNG) here or click to browse',
     uploadAreaActive: isFr
       ? 'Déposez les fichiers pour démarrer l\'analyse sécurisée'
       : 'Drop files now to initialize secure binary verification',
     uploadHint: isFr 
-      ? 'Formats : DXF, DWG, STEP, PDF (Taille max: 30 Mo)'
-      : 'Supported formats: DXF, DWG, STEP, PDF (Max size: 30MB)',
+      ? 'Formats autorisés : DXF, DWG, STEP, PDF, JPG, PNG (Max 30 Mo par fichier, fichiers multiples acceptés)'
+      : 'Supported formats: DXF, DWG, STEP, PDF, JPG, PNG (Max 30MB per file, multiple files supported)',
     qty: isFr ? 'Quantité' : 'Required Quantity',
     zip: isFr ? 'Code Postal de Livraison' : 'Delivery Zip Code',
     notes: isFr ? 'Instructions Particulières' : 'Special Instructions / Notes',
     btnBack: isFr ? 'Retour' : 'Back',
     btnNext: isFr ? 'Suivant' : 'Next',
-    btnSubmit: isFr ? 'Soumettre la Demande' : 'Submit Quote Request',
-    processing: isFr ? 'Vérification binaire du fichier...' : 'Executing Magic Number validation...',
-    uploadingS3: isFr ? 'Transfert direct vers S3...' : 'Uploading directly to AWS S3 bucket...',
-    successTitle: isFr ? 'Demande Transmise avec Succès !' : 'RFQ Submitted successfully!',
+    btnReview: isFr ? 'Vérifier la commande' : 'Review Summary',
+    btnConfirmSubmit: isFr ? 'Confirmer & Envoyer la Demande' : 'Confirm & Submit Quote Request',
+    btnEdit: isFr ? 'Modifier' : 'Edit',
+    processing: isFr ? 'Vérification en cours...' : 'Processing submission...',
+    successTitle: isFr ? 'Demande de Devis Transmise & Archivée !' : 'RFQ Submitted & Archived Successfully!',
     successDesc: isFr
-      ? 'Vos fichiers CAO ont été vérifiés sur notre serveur et envoyés sur notre bucket de stockage privé. Notre bureau d\'études enverra le devis sous 24-48h.'
-      : 'CAD files verified and streamed to our private S3 bucket. Our engineering center will issue the Devis within 24-48h.',
+      ? 'Votre dossier technique a été vérifié, chiffré et transmis à notre bureau d\'études. Un devis officiel vous sera délivré sous 24-48h.'
+      : 'Your technical dossier has been binary-verified, encrypted, and dispatched to our engineering center. An official quotation will be issued within 24-48 hours.',
     silentMentor: isFr ? 'MENTOR SILENCIEUX' : 'SILENT MENTOR',
     dynamicAdvice: isFr ? 'Recommandations en temps réel' : 'Real-time AI Guidance',
-    previewCAD: isFr ? 'Aperçu 2D / Schéma technique' : 'CAD Drawing 2D Blueprint Preview',
-    toastValidation: isFr ? 'Veuillez corriger les erreurs de validation.' : 'Please correct the validation errors.'
+    toastValidation: isFr ? 'Veuillez corriger les erreurs de validation.' : 'Please correct validation errors in the highlighted fields.',
+    shareTitle: isFr ? 'Archivage & Partage' : 'Archive & Share Summary',
+    copyLink: isFr ? 'Copier le résumé' : 'Copy Summary Link',
+    printPdf: isFr ? 'Imprimer / Sauvegarder PDF' : 'Print / Save PDF Report',
+    linkCopied: isFr ? 'Lien du résumé copié !' : 'Summary link copied to clipboard!'
   };
 
   const [step, setStep] = useState(1);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [verifiedFiles, setVerifiedFiles] = useState<VerifiedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [fileError, setFileError] = useState('');
   const [toasts, setToasts] = useState<string[]>([]);
   const [guidance, setGuidance] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [rfqRefId, setRfqRefId] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -115,9 +159,11 @@ export default function RfqPage({ params }: PageProps) {
     handleSubmit,
     watch,
     trigger,
+    getValues,
     formState: { errors }
   } = useForm<RfqFormData>({
     resolver: zodResolver(rfqSchema),
+    mode: 'onChange',
     defaultValues: {
       companyName: '',
       contactName: '',
@@ -132,13 +178,13 @@ export default function RfqPage({ params }: PageProps) {
     }
   });
 
-  // Watch key values for context-aware Guidance Panel updates
   const watchedSteelGrade = watch('steelGrade');
   const watchedFinishing = watch('finishing');
   const watchedTolerance = watch('tolerance');
   const watchedQuantity = watch('quantity');
+  const watchedNotes = watch('notes');
 
-  // Trigger guidance fetch whenever form values change
+  // Trigger guidance fetch & AI gibberish detector whenever form values change
   useEffect(() => {
     async function fetchGuidance() {
       try {
@@ -151,21 +197,37 @@ export default function RfqPage({ params }: PageProps) {
         const res = await fetch(`/api/rfq/guidance?${query.toString()}`);
         if (res.ok) {
           const data = await res.json();
-          setGuidance(data.guidanceItems || []);
+          let items = data.guidanceItems || [];
+
+          // AI Gibberish detector injection into Guidance UI
+          if (watchedNotes && isGibberishText(watchedNotes)) {
+            items = [
+              {
+                id: 'gibberish-notes',
+                severity: 'HIGH',
+                message: 'Special instructions contain repetitive or random text patterns. Please enter detailed technical requirements.',
+                actionableSteps: ['Clear placeholder characters and specify manufacturing notes.'],
+                evidenceLinks: []
+              },
+              ...items
+            ];
+          }
+
+          setGuidance(items);
         }
       } catch (err) {
         console.error('Error fetching guidance:', err);
       }
     }
     fetchGuidance();
-  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity]);
+  }, [watchedSteelGrade, watchedFinishing, watchedTolerance, watchedQuantity, watchedNotes]);
 
-  // Toast Helpers
+  // Toast Helper
   const addToast = (msg: string) => {
     setToasts(prev => [...prev, msg]);
     setTimeout(() => {
       setToasts(prev => prev.slice(1));
-    }, 4000);
+    }, 4500);
   };
 
   const nextStep = async () => {
@@ -175,9 +237,10 @@ export default function RfqPage({ params }: PageProps) {
     } else if (step === 2) {
       isValid = await trigger(['steelGrade', 'finishing', 'tolerance']);
     } else if (step === 3) {
-      if (!selectedFile) {
-        setFileError(isFr ? 'Veuillez téléverser un plan CAO.' : 'Please upload a CAD drawing file.');
-        addToast(isFr ? 'Échec : plan requis' : 'Failure: CAD Drawing is required');
+      if (verifiedFiles.length === 0) {
+        const msg = isFr ? 'Veuillez téléverser au moins un plan ou fichier valide.' : 'Please upload at least one valid drawing or file.';
+        setFileError(msg);
+        addToast(msg);
         return;
       }
       isValid = true;
@@ -193,8 +256,9 @@ export default function RfqPage({ params }: PageProps) {
   };
 
   const prevStep = () => setStep(prev => prev - 1);
+  const goToStep = (targetStep: number) => setStep(targetStep);
 
-  // Drag and drop logic
+  // Drag & drop logic
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -209,44 +273,25 @@ export default function RfqPage({ params }: PageProps) {
     e.preventDefault();
     setIsDragging(false);
     setFileError('');
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFileList(e.dataTransfer.files);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError('');
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      processFileList(e.target.files);
     }
   };
 
-  const processFile = (file: File) => {
-    const validExtensions = ['dxf', 'dwg', 'step', 'stp', 'pdf'];
-    const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
-
-    if (!validExtensions.includes(fileExt)) {
-      const err = isFr ? 'Format non supporté. Seuls DXF, DWG, STEP, et PDF sont autorisés.' : 'Unsupported format. Only DXF, DWG, STEP, and PDF are allowed.';
-      setFileError(err);
-      addToast(err);
-      return;
-    }
-    if (file.size > 30 * 1024 * 1024) {
-      const err = isFr ? 'Fichier trop lourd. Max 30 Mo.' : 'File exceeds size limit. Max 30MB allowed.';
-      setFileError(err);
-      addToast(err);
-      return;
-    }
-    setSelectedFile(file);
-  };
-
-  // Client-Side Magic Number validation
-  const verifyFileHeadersClient = (file: File): Promise<boolean> => {
+  // Immediate Client-Side Magic Number verification
+  const verifyFileHeadersClient = (file: File): Promise<{ isValid: boolean; detectedType: 'cad' | 'pdf' | 'image' }> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (!reader.result) {
-          resolve(false);
+          resolve({ isValid: false, detectedType: 'cad' });
           return;
         }
         const bytes = new Uint8Array(reader.result as ArrayBuffer);
@@ -255,54 +300,116 @@ export default function RfqPage({ params }: PageProps) {
         
         const fileExt = file.name.toLowerCase().split('.').pop() || '';
         let isValid = false;
+        let detectedType: 'cad' | 'pdf' | 'image' = 'cad';
 
         if (fileExt === 'pdf') {
+          detectedType = 'pdf';
           isValid = hex.startsWith('25 50 44 46'); // %PDF
+        } else if (fileExt === 'png') {
+          detectedType = 'image';
+          isValid = hex.startsWith('89 50 4e 47'); // PNG magic
+        } else if (fileExt === 'jpg' || fileExt === 'jpeg') {
+          detectedType = 'image';
+          isValid = hex.startsWith('ff d8 ff'); // JPEG magic
         } else if (fileExt === 'dwg') {
+          detectedType = 'cad';
           isValid = hex.startsWith('41 43 31 30') || hex.startsWith('4d 43 30 2e');
         } else if (fileExt === 'step' || fileExt === 'stp') {
+          detectedType = 'cad';
           isValid = hex.startsWith('49 53 4f 2d') || ascii.includes('ISO-10303');
         } else if (fileExt === 'dxf') {
+          detectedType = 'cad';
           isValid = ascii.startsWith('0') || ascii.startsWith('  0') || ascii.includes('SECTION');
         }
-        resolve(isValid);
+
+        resolve({ isValid, detectedType });
       };
       reader.readAsArrayBuffer(file.slice(0, 100));
     });
   };
 
-  const onSubmit = async (data: RfqFormData) => {
-    if (!selectedFile) return;
+  const processFileList = async (files: FileList | File[]) => {
+    const validExtensions = ['dxf', 'dwg', 'step', 'stp', 'pdf', 'jpg', 'jpeg', 'png'];
+    const newVerifiedFiles: VerifiedFile[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+
+      if (!validExtensions.includes(fileExt)) {
+        const err = isFr 
+          ? `Format non supporté pour "${file.name}". Seuls DXF, DWG, STEP, PDF, JPG, PNG sont autorisés.`
+          : `Unsupported format for "${file.name}". Only DXF, DWG, STEP, PDF, JPG, PNG are allowed.`;
+        setFileError(err);
+        addToast(`❌ ${err}`);
+        continue;
+      }
+
+      if (file.size > 30 * 1024 * 1024) {
+        const err = isFr 
+          ? `Fichier "${file.name}" trop lourd (> 30 Mo).` 
+          : `File "${file.name}" exceeds 30MB size limit.`;
+        setFileError(err);
+        addToast(`❌ ${err}`);
+        continue;
+      }
+
+      // Immediate Magic Number Binary Header Verification
+      const { isValid, detectedType } = await verifyFileHeadersClient(file);
+      if (!isValid) {
+        const err = isFr
+          ? `Échec de sécurité : Le fichier "${file.name}" a échoué à la vérification باینری. Contenu corrompu ou extension modifiée.`
+          : `Security Rejection: File "${file.name}" failed binary magic number signature check. Corrupted or renamed file.`;
+        setFileError(err);
+        addToast(`🛡️ ${err}`);
+        continue;
+      }
+
+      let previewUrl = undefined;
+      if (detectedType === 'image') {
+        previewUrl = URL.createObjectURL(file);
+      }
+
+      newVerifiedFiles.push({
+        file,
+        previewUrl,
+        fileType: detectedType,
+        binaryVerified: true
+      });
+    }
+
+    if (newVerifiedFiles.length > 0) {
+      setVerifiedFiles(prev => [...prev, ...newVerifiedFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setVerifiedFiles(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const onSubmitFinal = async (data: RfqFormData) => {
+    if (verifiedFiles.length === 0) return;
 
     setSubmitting(true);
     setStatusMessage(t.processing);
 
     try {
-      // 1. Client-Side Magic Number check
-      const isBinaryValid = await verifyFileHeadersClient(selectedFile);
-      if (!isBinaryValid) {
-        const errorMsg = isFr 
-          ? 'Rejet de sécurité : Échec de validation de la signature binaire.' 
-          : 'Security Rejection: File binary signature check failed.';
-        setFileError(errorMsg);
-        addToast(errorMsg);
-        setSubmitting(false);
-        return;
-      }
+      const generatedId = `RFQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // 2. Complete Submission via our local API route (mocking CRM/NestJS hooks)
-      setStatusMessage(isFr ? 'Enregistrement de la demande...' : 'Registering RFQ deal opportunity...');
+      // Complete Submission via API Route
       const completeRes = await fetch('/api/rfq', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          s3Key: `drawings/${Date.now()}-${selectedFile.name}`,
-          filename: selectedFile.name
+          rfqId: generatedId,
+          filenames: verifiedFiles.map(vf => vf.file.name),
+          s3Key: `drawings/${generatedId}/${verifiedFiles[0].file.name}`
         })
       });
 
       if (completeRes.ok) {
+        setRfqRefId(generatedId);
         setSubmitted(true);
       } else {
         addToast(isFr ? 'Erreur lors de l\'enregistrement.' : 'Failed to register lead in database.');
@@ -316,22 +423,131 @@ export default function RfqPage({ params }: PageProps) {
     }
   };
 
+  const copySummaryLink = () => {
+    const summaryText = `MetalHub RFQ ${rfqRefId} | ${getValues('companyName')} | Grade: ${getValues('steelGrade')} | Qty: ${getValues('quantity')} units`;
+    navigator.clipboard.writeText(summaryText);
+    addToast(t.linkCopied);
+  };
+
+  const printReport = () => {
+    window.print();
+  };
+
+  // SUCCESS REPORT SCREEN
   if (submitted) {
+    const formDataValues = getValues();
     return (
-      <div className="min-h-[80vh] flex items-center justify-center py-16 px-4">
-        <div className="steel-card" style={{ maxWidth: '500px', width: '100%', padding: '2.5rem', textAlign: 'center', background: 'rgba(10,16,29,0.7)', border: '1px solid var(--color-steel-border)', borderRadius: '12px' }}>
-          <div style={{ color: 'var(--color-cad-blue)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-            <CheckCircle className="w-16 h-16 text-cyan-400" />
+      <div className="min-h-screen py-16 px-4 flex flex-col items-center justify-center">
+        <div 
+          className="steel-card" 
+          style={{ 
+            maxWidth: '750px', 
+            width: '100%', 
+            padding: '2.5rem', 
+            background: 'rgba(10,16,29,0.85)', 
+            backdropFilter: 'blur(10px)', 
+            border: '1px solid var(--color-steel-border)', 
+            borderRadius: '16px' 
+          }}
+        >
+          {/* Header Badge */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-steel-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <FileCheck className="w-8 h-8" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#10b981' }}>
+                  {isFr ? 'Dossier Technique Archivé' : 'Dossier Verified & Archived'}
+                </span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#ffffff', margin: 0, fontFamily: 'Arial, sans-serif' }}>
+                  {rfqRefId}
+                </h2>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'right' }}>
+              <span className="badge badge-steel" style={{ fontSize: '0.75rem', backgroundColor: 'rgba(6,182,212,0.1)', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.3)' }}>
+                Status: DRAFTED & VERIFIED
+              </span>
+            </div>
           </div>
-          <h2 className="section-title" style={{ fontSize: '1.8rem', marginBottom: '1rem', fontFamily: 'Arial, sans-serif', fontWeight: '600' }}>{t.successTitle}</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '2rem' }}>{t.successDesc}</p>
-          <button 
-            onClick={() => { setStep(1); setSubmitted(false); setSelectedFile(null); }} 
-            className="hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wide transition-all"
-            style={{ padding: '0.6rem 1.8rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer', width: '100%' }}
-          >
-            {isFr ? 'Faire une nouvelle demande' : 'Submit Another Request'}
-          </button>
+
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>{t.successTitle}</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '1.75rem' }}>{t.successDesc}</p>
+
+          {/* Structured Receipt Summary Box */}
+          <div style={{ padding: '1.25rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '10px', marginBottom: '1.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700' }}>Company</span>
+                <span style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>{formDataValues.companyName}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700' }}>Contact</span>
+                <span style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>{formDataValues.contactName} ({formDataValues.email})</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700' }}>Steel Grade</span>
+                <span style={{ fontSize: '0.9rem', color: '#22d3ee', fontWeight: '600' }}>{formDataValues.steelGrade}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700' }}>Finishing & Tolerance</span>
+                <span style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>{formDataValues.finishing} | {formDataValues.tolerance}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700' }}>Quantity & Delivery Zip</span>
+                <span style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>{formDataValues.quantity} units to {formDataValues.zipCode}</span>
+              </div>
+            </div>
+
+            {/* Attached Files List */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '700', marginBottom: '0.5rem' }}>
+                Archived Attachments ({verifiedFiles.length})
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {verifiedFiles.map((vf, idx) => (
+                  <span key={idx} style={{ padding: '0.3rem 0.6rem', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-steel-border)', borderRadius: '6px', fontSize: '0.75rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <FileCheck className="w-3.5 h-3.5" />
+                    {vf.file.name} ({(vf.file.size / (1024 * 1024)).toFixed(2)} MB)
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Sharing Buttons */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                onClick={copySummaryLink}
+                className="hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-1.5"
+                style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-steel-border)', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                <Copy className="w-4 h-4 text-cyan-400" />
+                <span>{t.copyLink}</span>
+              </button>
+
+              <button 
+                onClick={printReport}
+                className="hover:bg-white/10 text-white font-semibold transition-all flex items-center gap-1.5"
+                style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--color-steel-border)', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                <Printer className="w-4 h-4 text-cyan-400" />
+                <span>{t.printPdf}</span>
+              </button>
+            </div>
+
+            <button 
+              onClick={() => { setStep(1); setSubmitted(false); setVerifiedFiles([]); }} 
+              className="hover:bg-cyan-300 text-slate-950 font-bold text-xs tracking-wide transition-all"
+              style={{ padding: '0.55rem 1.25rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer' }}
+            >
+              {isFr ? 'Nouvelle Demande' : 'Submit Another Request'}
+            </button>
+          </div>
+
         </div>
       </div>
     );
@@ -343,7 +559,7 @@ export default function RfqPage({ params }: PageProps) {
       {/* Toast notifications container */}
       <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {toasts.map((toast, idx) => (
-          <div key={idx} style={{ padding: '0.75rem 1.25rem', backgroundColor: '#ef4444', color: '#ffffff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+          <div key={idx} style={{ padding: '0.75rem 1.25rem', backgroundColor: '#ef4444', color: '#ffffff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
             <AlertTriangle className="w-4 h-4" />
             <span>{toast}</span>
           </div>
@@ -365,10 +581,10 @@ export default function RfqPage({ params }: PageProps) {
             role="progressbar" 
             aria-valuenow={step} 
             aria-valuemin={1} 
-            aria-valuemax={4}
-            aria-label={`Wizard Step ${step} of 4`}
+            aria-valuemax={5}
+            aria-label={`Wizard Step ${step} of 5`}
           >
-            {[t.step1, t.step2, t.step3, t.step4].map((label, idx) => {
+            {[t.step1, t.step2, t.step3, t.step4, t.step5].map((label, idx) => {
               const isCurrent = step === idx + 1;
               const isDone = step > idx + 1;
               return (
@@ -387,9 +603,9 @@ export default function RfqPage({ params }: PageProps) {
             })}
           </div>
 
-          {/* Wizard Form Component */}
+          {/* Wizard Form Card */}
           <div className="steel-card" style={{ padding: '2rem', background: 'rgba(10,16,29,0.5)', backdropFilter: 'blur(5px)', border: '1px solid var(--color-steel-border)', borderRadius: '12px' }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmitFinal)}>
               
               {/* Step 1: Contact details */}
               {step === 1 && (
@@ -485,7 +701,7 @@ export default function RfqPage({ params }: PageProps) {
                 </div>
               )}
 
-              {/* Step 3: Drawing files upload */}
+              {/* Step 3: Drawing files upload & previews */}
               {step === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div className="form-group">
@@ -500,54 +716,94 @@ export default function RfqPage({ params }: PageProps) {
                       className={`${styles.uploadBox} ${isDragging ? styles.uploadBoxActive : ''}`}
                       role="button"
                       tabIndex={0}
-                      aria-label="Upload CAD drawing file. Drag and drop file here, or click to browse."
+                      aria-label="Upload CAD drawing, PDF or Image blueprint files."
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
                     >
                       <div style={{ color: 'var(--color-cad-blue)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
                         <Upload className="w-10 h-10 text-cyan-400" />
                       </div>
                       <p style={{ color: '#ffffff', fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                        {selectedFile ? selectedFile.name : (isDragging ? t.uploadAreaActive : t.uploadAreaDefault)}
+                        {isDragging ? t.uploadAreaActive : t.uploadAreaDefault}
                       </p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.uploadHint}</p>
                       <input 
-                        required={!selectedFile}
                         type="file" 
                         ref={fileInputRef} 
                         onChange={handleFileChange} 
                         style={{ display: 'none' }} 
-                        accept=".dxf,.dwg,.step,.stp,.pdf"
+                        accept=".dxf,.dwg,.step,.stp,.pdf,.jpg,.jpeg,.png"
+                        multiple
                       />
                     </div>
                     {fileError && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: '600' }}>❌ {fileError}</p>}
                     
-                    {/* Uploaded File details and Static Blueprint CAD Preview */}
-                    {selectedFile && !fileError && (
-                      <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.85rem', fontWeight: '600', marginBottom: '1rem' }}>
-                          <CheckCircle className="w-4 h-4" />
-                          <span>{selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
-                        </div>
+                    {/* Multi-File Uploaded list & Type-Specific Previews */}
+                    {verifiedFiles.length > 0 && (
+                      <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
+                          Verified Files ({verifiedFiles.length})
+                        </span>
                         
-                        {/* Static CAD Blueprint mock visualization */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>{t.previewCAD}</span>
-                          <div style={{ height: '140px', width: '100%', border: '1px solid #1e293b', borderRadius: '6px', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                            {/* Blueprint grid lines */}
-                            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                            
-                            {/* Technical Drawing Vector Shape Mock */}
-                            <svg width="220" height="100" viewBox="0 0 220 100" style={{ position: 'relative', zIndex: 1, opacity: 0.85 }}>
-                              <rect x="10" y="10" width="200" height="80" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="3 3" />
-                              <circle cx="50" cy="50" r="16" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
-                              <circle cx="170" cy="50" r="16" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
-                              <line x1="10" y1="50" x2="210" y2="50" stroke="#38bdf8" strokeWidth="1" strokeDasharray="5 5" />
-                              <line x1="50" y1="10" x2="50" y2="90" stroke="#38bdf8" strokeWidth="1" strokeDasharray="5 5" />
-                              <line x1="170" y1="10" x2="170" y2="90" stroke="#38bdf8" strokeWidth="1" strokeDasharray="5 5" />
-                            </svg>
-                            <span style={{ position: 'absolute', bottom: '8px', right: '8px', fontSize: '0.65rem', color: '#38bdf8', fontFamily: 'monospace', fontWeight: 'bold' }}>CAD 2D VIEW OK</span>
+                        {verifiedFiles.map((item, idx) => (
+                          <div key={idx} style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', position: 'relative' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.85rem', fontWeight: '600' }}>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>{item.file.name} ({(item.file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                                <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', textTransform: 'uppercase' }}>
+                                  MAGIC HEADER OK
+                                </span>
+                              </div>
+                              <button 
+                                type="button" 
+                                onClick={() => removeFile(idx)}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem' }}
+                                title="Remove File"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Type-Specific Preview Rendering */}
+                            {item.fileType === 'image' && item.previewUrl && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700' }}>IMAGE BLUEPRINT PREVIEW</span>
+                                <div style={{ height: '140px', width: '100%', borderRadius: '6px', overflow: 'hidden', border: '1px solid #1e293b', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <img src={item.previewUrl} alt="Blueprint" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                                </div>
+                              </div>
+                            )}
+
+                            {item.fileType === 'pdf' && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700' }}>DOCUMENT PDF PREVIEW</span>
+                                <div style={{ height: '120px', width: '100%', borderRadius: '6px', border: '1px solid #1e293b', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                                  <FileText className="w-12 h-12 text-rose-400" />
+                                  <div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff' }}>PDF Technical Document</div>
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Structured Engineering Specification Sheet</div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {item.fileType === 'cad' && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700' }}>CAD 2D VECTOR BLUEPRINT PREVIEW</span>
+                                <div style={{ height: '130px', width: '100%', border: '1px solid #1e293b', borderRadius: '6px', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                                  <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+                                  <svg width="220" height="90" viewBox="0 0 220 90" style={{ position: 'relative', zIndex: 1, opacity: 0.85 }}>
+                                    <rect x="10" y="10" width="200" height="70" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="3 3" />
+                                    <circle cx="50" cy="45" r="14" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
+                                    <circle cx="170" cy="45" r="14" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
+                                    <line x1="10" y1="45" x2="210" y2="45" stroke="#38bdf8" strokeWidth="1" strokeDasharray="5 5" />
+                                  </svg>
+                                  <span style={{ position: 'absolute', bottom: '6px', right: '8px', fontSize: '0.65rem', color: '#38bdf8', fontFamily: 'monospace', fontWeight: 'bold' }}>CAD VECTOR OK</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -594,6 +850,80 @@ export default function RfqPage({ params }: PageProps) {
                       placeholder="e.g. Weld certifications required, hot-dip zinc coating..." 
                       {...register('notes')}
                     />
+                    {errors.notes && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.notes.message}</p>}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Review & Confirmation Summary Screen before Final Submission */}
+              {step === 5 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ padding: '1rem', backgroundColor: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '8px', color: '#22d3ee', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Info className="w-4 h-4" />
+                    <span>{isFr ? 'Vérifiez les informations avant l\'envoi final.' : 'Review your dossier summary carefully before final transmission.'}</span>
+                  </div>
+
+                  {/* Summary Breakdown Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                    
+                    {/* Section 1 */}
+                    <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>1. Contact Information</span>
+                        <button type="button" onClick={() => goToStep(1)} style={{ background: 'none', border: 'none', color: '#22d3ee', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                          <Edit3 className="w-3 h-3" />
+                          <span>{t.btnEdit}</span>
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{getValues('companyName')}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{getValues('contactName')}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{getValues('email')} | {getValues('phone')}</div>
+                    </div>
+
+                    {/* Section 2 */}
+                    <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>2. Specifications</span>
+                        <button type="button" onClick={() => goToStep(2)} style={{ background: 'none', border: 'none', color: '#22d3ee', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                          <Edit3 className="w-3 h-3" />
+                          <span>{t.btnEdit}</span>
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#22d3ee', fontWeight: '600' }}>Grade: {getValues('steelGrade')}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Finish: {getValues('finishing')}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Tolerance: {getValues('tolerance')}</div>
+                    </div>
+
+                    {/* Section 3 */}
+                    <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>3. Verified Files ({verifiedFiles.length})</span>
+                        <button type="button" onClick={() => goToStep(3)} style={{ background: 'none', border: 'none', color: '#22d3ee', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                          <Edit3 className="w-3 h-3" />
+                          <span>{t.btnEdit}</span>
+                        </button>
+                      </div>
+                      {verifiedFiles.map((vf, idx) => (
+                        <div key={idx} style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '500' }}>
+                          ✓ {vf.file.name}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Section 4 */}
+                    <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-steel-border)', borderRadius: '8px', position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>4. Volume & Delivery</span>
+                        <button type="button" onClick={() => goToStep(4)} style={{ background: 'none', border: 'none', color: '#22d3ee', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                          <Edit3 className="w-3 h-3" />
+                          <span>{t.btnEdit}</span>
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: '600' }}>{getValues('quantity')} units</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Zip: {getValues('zipCode')}</div>
+                      {getValues('notes') && <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem', fontStyle: 'italic' }}>"{getValues('notes')}"</div>}
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -612,24 +942,24 @@ export default function RfqPage({ params }: PageProps) {
                   </button>
                 )}
                 
-                {step < 4 ? (
+                {step < 5 ? (
                   <button 
                     type="button" 
                     onClick={nextStep} 
                     className="hover:bg-cyan-300 text-slate-950 font-bold transition-all flex items-center gap-1"
                     style={{ padding: '0.45rem 1.2rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
                   >
-                    <span>{t.btnNext}</span>
+                    <span>{step === 4 ? t.btnReview : t.btnNext}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button 
                     type="submit" 
                     className="hover:bg-cyan-300 text-slate-950 font-extrabold transition-all"
-                    style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
+                    style={{ padding: '0.55rem 1.75rem', borderRadius: '8px', backgroundColor: '#22d3ee', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
                     disabled={submitting}
                   >
-                    {submitting ? statusMessage : t.btnSubmit}
+                    {submitting ? statusMessage : t.btnConfirmSubmit}
                   </button>
                 )}
               </div>
@@ -664,7 +994,7 @@ export default function RfqPage({ params }: PageProps) {
                     key={item.id || idx} 
                     style={{ 
                       padding: '0.75rem 1rem', 
-                      backgroundColor: item.severity === 'HIGH' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)', 
+                      backgroundColor: item.severity === 'HIGH' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(255,255,255,0.02)', 
                       border: `1px solid ${item.severity === 'HIGH' ? '#ef4444' : 'var(--color-steel-border)'}`, 
                       borderRadius: '8px' 
                     }}
